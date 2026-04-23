@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evo-RL | Continuous Open-Source Real-World RL</title>
+  <meta name="description" content="Evo-RL: continuous open-source real-world reinforcement learning on SO101 and AgileX PiPER, with a full reproducible CLI pipeline." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="grid-layer"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top">
+      <span class="brand-mark">EVO</span>
+      <span class="brand-name">Evo-RL</span>
+    </a>
+    <div class="header-right">
+      <nav class="site-nav">
+        <a href="#focus">Focus</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#results">Results</a>
+        <a href="#media">Media</a>
+        <a href="#reproduce">Reproduce</a>
+      </nav>
+      <div class="site-controls">
+        <div class="lang-switch" role="group" aria-label="Language switch">
+          <button id="langEn" class="lang-btn is-active" type="button" data-lang="en">EN</button>
+          <button id="langZh" class="lang-btn" type="button" data-lang="zh">中</button>
+        </div>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Theme toggle">
+          <span class="theme-icon" id="themeIcon">◐</span>
+          <span id="themeLabel">Night</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section id="traffic" class="traffic-strip">
+      <div class="traffic-widget">
+        <p class="traffic-title">Site Traffic</p>
+        <div class="traffic-item">
+          <span class="traffic-label">Visitors</span>
+          <strong id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv">--</span></strong>
+        </div>
+        <div class="traffic-item">
+          <span class="traffic-label">Views</span>
+          <strong id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv">--</span></strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero section reveal">
+      <div class="hero-left">
+        <p class="eyebrow">Continuous Open-Source Real-World RL</p>
+        <h1>
+          Evo-RL
+          <span>SO101 to AgileX PiPER</span>
+        </h1>
+        <p class="hero-summary">
+          A LeRobot-aligned, full-pipeline real-world offline RL workflow for real robots: collect rollout data,
+          train value functions and policies offline, infer advantage tags, and iterate deployment in a closed loop.
+        </p>
+
+        <div class="news-pill">
+          <span>NEWS</span>
+          <strong>February 26, 2026</strong>
+          <em>First SO101 real-world RL baseline + reproducible CLI released.</em>
+        </div>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/MINT-SJTU/Evo-RL" target="_blank" rel="noreferrer">GitHub Repo</a>
+          <a class="btn btn-ghost" href="https://huggingface.co/docs/lerobot/index" target="_blank" rel="noreferrer">LeRobot Docs</a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-card shell-card">
+          <p class="shell-title">pipeline.sh</p>
+          <pre><code>lerobot-human-inloop-record
+  --dataset.repo_id=&lt;DATASET&gt;
+
+lerobot-value-train
+  --value.type=pistar06
+
+lerobot-value-infer
+  --acp.positive_ratio=0.3
+
+lerobot-train
+  --acp.enable=true</code></pre>
+        </div>
+
+        <div class="hero-stats">
+          <article class="stat-card">
+            <p class="stat-label">Robot Platforms</p>
+            <p class="stat-value" data-target="2">0</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Open Task Datasets</p>
+            <p class="stat-value" data-target="0">0</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Open Models</p>
+            <p class="stat-value" data-target="0">0</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Release Year</p>
+            <p class="stat-value" data-target="2026">0</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="logo-row section reveal">
+      <img src="assets/images/sjtu.png" alt="SJTU community visual" />
+      <img src="assets/images/evomind1.png" alt="EvoMind" />
+    </section>
+
+    <section id="focus" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Project Focus</p>
+        <h2>Open Infrastructure for Real-World RL</h2>
+      </div>
+      <div class="card-grid three">
+        <article class="glass-card">
+          <h3>Open real-world RL pipeline</h3>
+          <p>Runnable workflows on SO101 and AgileX PiPER covering collection, offline value/policy training, and iterative deployment.</p>
+        </article>
+        <article class="glass-card">
+          <h3>Reproducible assets</h3>
+          <p>Codebase, model layout, dataset structure, and command-line templates are released to reduce setup friction and improve reproducibility.</p>
+        </article>
+        <article class="glass-card">
+          <h3>Community co-evolution</h3>
+          <p>Reproduce existing real-world RL methods, extend value/policy variants, and continuously publish experiments and benchmarks for collective progress.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="pipeline" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Method</p>
+        <h2>6-Stage Closed-Loop Pipeline</h2>
+      </div>
+
+      <ol class="pipeline-list">
+        <li><span>01</span><p><strong>System preparation</strong> to ensure robot, sensors, and control stack are ready.</p></li>
+        <li><span>02</span><p><strong>Interactive data collection</strong> with human guidance and episode-level outcomes.</p></li>
+        <li><span>03</span><p><strong>Value modeling</strong> to estimate trajectory quality from accumulated data.</p></li>
+        <li><span>04</span><p><strong>Signal annotation</strong> to convert value outputs into usable training supervision.</p></li>
+        <li><span>05</span><p><strong>Policy update and deployment</strong> to run the improved policy in real tasks.</p></li>
+        <li><span>06</span><p><strong>Data refresh and iteration</strong> to continue improving robustness and success rate.</p></li>
+      </ol>
+    </section>
+
+    <section id="results" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Results</p>
+        <h2>Training Signals Across Iterations</h2>
+      </div>
+
+      <div class="results-layout">
+        <article class="glass-card chart-card">
+          <div class="chart-toolbar">
+            <button class="metric-btn is-active" data-metric="value">Value</button>
+            <button class="metric-btn" data-metric="advantage">Advantage</button>
+            <button class="metric-btn" data-metric="success">Success Rate</button>
+          </div>
+          <canvas id="signalChart" width="960" height="480" aria-label="Evo-RL signals chart"></canvas>
+          <p class="chart-note">Illustrative trend view for project webpage. Replace with your run logs for paper-ready plots.</p>
+        </article>
+
+        <article class="glass-card insights-card">
+          <h3>What This Visual Captures</h3>
+          <ul>
+            <li>Value trend stabilizes as rollouts and labels improve across rounds.</li>
+            <li>Advantage separates better trajectories used for ACP tagging.</li>
+            <li>Success rate rises with iterative deployment and data refresh.</li>
+          </ul>
+          <p class="note-strong">Current default ACP ratio in README pipeline: <code>--acp.positive_ratio=0.3</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="media" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Qualitative Demos</p>
+        <h2>Visual Results Gallery</h2>
+      </div>
+
+      <div class="viz-board">
+        <article class="glass-card viz-lane viz-lane-value">
+          <header class="viz-head">
+            <p class="lane-kicker">VALUE VISUAL</p>
+            <h3>Success and Failure Case</h3>
+            <p class="lane-note">Frame-level value visualization on real robot rollouts.</p>
+          </header>
+          <div class="viz-strip viz-strip-stack">
+            <figure class="viz-cell">
+              <img src="assets/gifs/value_success.gif" alt="Value visual success case" loading="lazy" />
+            </figure>
+            <figure class="viz-cell">
+              <img src="assets/gifs/value_failure.gif" alt="Value visual failure case" loading="lazy" />
+            </figure>
+          </div>
+        </article>
+
+        <article class="glass-card viz-lane">
+          <header class="viz-head">
+            <p class="lane-kicker">POLICY ROLLOUT</p>
+            <h3>Deployment Visual Results</h3>
+            <p class="lane-note">Final policy behavior clips in target task execution.</p>
+          </header>
+          <div class="viz-strip">
+            <figure class="viz-cell">
+              <img src="assets/gifs/policy_rollout_1.gif" alt="Policy rollout result 1" loading="lazy" />
+            </figure>
+            <figure class="viz-cell">
+              <img src="assets/gifs/policy_rollout_2.gif" alt="Policy rollout result 2" loading="lazy" />
+            </figure>
+          </div>
+        </article>
+
+        <article class="glass-card viz-lane">
+          <header class="viz-head">
+            <p class="lane-kicker">HUMAN-IN-THE-LOOP</p>
+            <h3>Intervention and Recovery Results</h3>
+            <p class="lane-note">Human guidance segments and autonomous recovery outcomes.</p>
+          </header>
+          <div class="viz-strip">
+            <figure class="viz-cell">
+              <img src="assets/gifs/hitl_1.gif" alt="Human-in-the-loop result 1" loading="lazy" />
+            </figure>
+            <figure class="viz-cell">
+              <img src="assets/gifs/hitl_2.gif" alt="Human-in-the-loop result 2" loading="lazy" />
+            </figure>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Architecture</p>
+        <h2>LeRobot-Aligned VLA + Value Loop</h2>
+      </div>
+      <div class="architecture-block glass-card">
+        <img src="assets/images/VLA_architecture.jpg" alt="VLA architecture" />
+        <div>
+          <p>
+            Evo-RL reuses LeRobot's practical data and inference stack while adding value-guided
+            filtering signals (`value`, `advantage`, `acp_indicator`) to improve iterative policy training.
+          </p>
+          <p>
+            The same design supports single-GPU and accelerate-based multi-GPU workflows for both value and policy stages.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="related" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Related Work</p>
+        <h2>Context in Open Robot Learning</h2>
+      </div>
+      <article class="glass-card link-cloud">
+        <a href="https://www.pi.website/blog/pistar06" target="_blank" rel="noreferrer">Pi*0.6</a>
+        <a href="https://www.314159.com/blog" target="_blank" rel="noreferrer">Pi0.5</a>
+        <a href="https://github.com/MINT-SJTU/Evo-1" target="_blank" rel="noreferrer">EVO-1</a>
+        <a href="https://github.com/MINT-SJTU/Evo-SOTA.io" target="_blank" rel="noreferrer">EVO-SOTA</a>
+        <a href="https://github.com/huggingface/lerobot" target="_blank" rel="noreferrer">LeRobot</a>
+      </article>
+    </section>
+
+    <section id="reproduce" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Reproducibility</p>
+        <h2>Core CLI Commands</h2>
+      </div>
+      <div class="card-grid three">
+        <article class="glass-card">
+          <h3>Human-in-loop Record</h3>
+          <pre><code>lerobot-human-inloop-record \
+  --robot.type=&lt;ROBOT_TYPE&gt; \
+  --teleop.type=&lt;TELEOP_TYPE&gt; \
+  --dataset.repo_id=&lt;HF_USER_OR_ORG/DATASET&gt; \
+  --dataset.single_task="&lt;TASK_TEXT&gt;" \
+  --dataset.num_episodes=&lt;NUM_EPISODES&gt; \
+  --display_data=true</code></pre>
+        </article>
+
+        <article class="glass-card">
+          <h3>Value Training</h3>
+          <pre><code>lerobot-value-train \
+  --dataset.repo_id=&lt;HF_USER_OR_ORG/DATASET&gt; \
+  --value.type=&lt;VALUE_TYPE&gt; \
+  --batch_size=&lt;BATCH_SIZE&gt; \
+  --output_dir=outputs/value_train/&lt;RUN_NAME&gt; \
+  --job_name=&lt;RUN_NAME&gt;</code></pre>
+        </article>
+
+        <article class="glass-card">
+          <h3>Policy Training</h3>
+          <pre><code>lerobot-train \
+  --dataset.repo_id=&lt;HF_USER_OR_ORG/DATASET&gt; \
+  --policy.type=&lt;POLICY_TYPE&gt; \
+  --steps=&lt;TRAIN_STEPS&gt; \
+  --acp.enable=true \
+  --acp.indicator_dropout_prob=0.3 \
+  --output_dir=outputs/train/&lt;RUN_NAME&gt;</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section id="community" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Model & Community</p>
+        <h2>Links and Contact</h2>
+      </div>
+      <div class="card-grid two community-grid">
+        <article class="glass-card">
+          <h3>Release Status</h3>
+          <ul>
+            <li>Hugging Face model: coming soon</li>
+            <li>Hugging Face dataset: coming soon</li>
+            <li>Canonical version tags will be pinned once published</li>
+          </ul>
+        </article>
+
+        <article class="glass-card qr-card">
+          <h3>WeChat Group</h3>
+          <p class="qr-desc">Scan to join EvoMind's WeChat community and follow project updates.</p>
+          <div class="qr-frame">
+            <img src="assets/images/evomind_wechat.jpg" alt="EvoMind WeChat QR code" />
+          </div>
+          <p class="qr-caption">
+            <span class="qr-contact-label">Contact</span>
+            <a class="qr-email" href="mailto:business@evomind-tech.com">business@evomind-tech.com</a>
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="citation" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Citation</p>
+        <h2>BibTeX</h2>
+      </div>
+      <article class="glass-card citation-card">
+        <button class="copy-btn" id="copyBib" type="button">Copy BibTeX</button>
+        <pre id="bibtex"><code>@misc{evorl2026,
+  title        = {Evo-RL: Continuous Open-Source Real-World RL on SO101 and Beyond},
+  author       = {Evo-RL Contributors},
+  year         = {2026},
+  howpublished = {\url{https://github.com/MINT-SJTU/Evo-RL}}
+}</code></pre>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Evo-RL • Apache-2.0 • <span id="year"></span></p>
+  </footer>
+
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
