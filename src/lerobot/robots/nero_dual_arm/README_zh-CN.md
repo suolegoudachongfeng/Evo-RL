@@ -306,9 +306,13 @@ lerobot-record \
 - `robot.cameras.*.serial_number_or_name`
   - 替换成你自己的 RealSense 相机序列号
 - `dataset.repo_id`
-  - 改成你的数据集名称，比如 `your_name/nero_demo`
+  - 改成基础数据集名称，比如 `nero_task3_step1/8mL_empty`
+- `dataset.auto_version_repo_id`
+  - 如果想沿用旧项目的自动命名方式，保持为 `true`
 - `dataset.single_task`
   - 改成当前采集任务描述
+
+当 `dataset.auto_version_repo_id=true` 时，`lerobot-record` 会在创建数据集前检查本地已有数据集目录，并自动选择下一个 `vXX` 后缀。比如配置里写 `nero_task3_step1/8mL_empty`，实际运行时会变成 `nero_task3_step1/8mL_empty_YYYYMMDD_vXX`。如果 `dataset.root` 是 `null`，数据会保存到默认 LeRobot cache；如果设置了 `dataset.root`，它会被当成数据集保存根目录。
 
 如果只是临时调试，可以在命令行覆盖 YAML 里的某些字段：
 

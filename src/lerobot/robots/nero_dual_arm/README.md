@@ -284,9 +284,13 @@ Edit these fields before use:
 - `robot.cameras.*.serial_number_or_name`
   - replace the example RealSense serial numbers with your own
 - `dataset.repo_id`
-  - set your dataset name, for example `your_name/nero_demo`
+  - set the base dataset name, for example `nero_task3_step1/8mL_empty`
+- `dataset.auto_version_repo_id`
+  - keep this as `true` if you want legacy-style names like `nero_task3_step1/8mL_empty_20260424_v01`
 - `dataset.single_task`
   - write the task description saved into the dataset
+
+When `dataset.auto_version_repo_id=true`, `lerobot-record` checks the local dataset folder before creating a dataset and automatically picks the next `vXX` suffix. For example, `nero_task3_step1/8mL_empty` becomes `nero_task3_step1/8mL_empty_YYYYMMDD_vXX` at runtime. If `dataset.root` is `null`, the dataset is saved under the default LeRobot cache; if `dataset.root` is set, it is treated as the dataset storage root.
 
 You can still override any field from the command line for quick tests:
 

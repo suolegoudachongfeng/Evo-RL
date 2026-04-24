@@ -63,7 +63,9 @@ lerobot-record \
 """
 
 import logging
+import re
 from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from pathlib import Path
 from pprint import pformat
 
@@ -123,7 +125,7 @@ from lerobot.teleoperators import (  # noqa: F401
     so_leader,
     unitree_g1,
 )
-from lerobot.utils.constants import ACTION
+from lerobot.utils.constants import ACTION, HF_LEROBOT_HOME
 from lerobot.utils.control_utils import (
     init_keyboard_listener,
     is_headless,
@@ -150,6 +152,8 @@ class DatasetRecordConfig:
     repo_id: str
     # A short but accurate description of the task performed during the recording (e.g. "Pick the Lego block and drop it in the box on the right.")
     single_task: str
+    # Automatically expand repo_id from '<namespace>/<name>' to '<namespace>/<name>_YYYYMMDD_vXX'.
+    auto_version_repo_id: bool = False
     # Root directory where the dataset will be stored (e.g. 'dataset/path').
     root: str | Path | None = None
     # Limit the frames per second.
@@ -189,6 +193,41 @@ class DatasetRecordConfig:
     def __post_init__(self):
         if self.single_task is None:
             raise ValueError("You need to provide a task as argument in `single_task`.")
+
+
+def resolve_auto_versioned_dataset_location(repo_id: str, root: str | Path | None = None) -> tuple[str, Path | None]:
+    """Match the legacy NERO dataset naming style: namespace/name_YYYYMMDD_vXX."""
+    if "/" not in repo_id:
+        raise ValueError("`dataset.auto_version_repo_id=true` requires `dataset.repo_id` to look like '<namespace>/<name>'.")
+
+    namespace, description = repo_id.split("/", 1)
+    if not namespace or not description:
+        raise ValueError("`dataset.repo_id` must look like '<namespace>/<name>' when auto-versioning is enabled.")
+
+    if root is None:
+        base_path = HF_LEROBOT_HOME / namespace
+        versioned_root = None
+    else:
+        # With auto-versioning enabled, treat `root` as the dataset storage root.
+        base_path = Path(root).expanduser() / namespace
+        versioned_root = base_path
+
+    base_path.mkdir(parents=True, exist_ok=True)
+    pattern = re.compile(rf"^{re.escape(description)}_\d{{8}}_v(\d+)$")
+    max_version = 0
+    for path in base_path.iterdir():
+        if not path.is_dir():
+            continue
+        match = pattern.match(path.name)
+        if match:
+            max_version = max(max_version, int(match.group(1)))
+
+    date = datetime.today().strftime("%Y%m%d")
+    versioned_description = f"{description}_{date}_v{max_version + 1:02d}"
+    versioned_repo_id = f"{namespace}/{versioned_description}"
+    if versioned_root is not None:
+        versioned_root = versioned_root / versioned_description
+    return versioned_repo_id, versioned_root
 
 
 @dataclass
@@ -387,6 +426,17 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             sanity_check_dataset_robot_compatibility(dataset, robot, cfg.dataset.fps, dataset_features)
         else:
             # Create empty dataset or load existing saved episodes
+            if cfg.dataset.auto_version_repo_id:
+                original_repo_id = cfg.dataset.repo_id
+                cfg.dataset.repo_id, cfg.dataset.root = resolve_auto_versioned_dataset_location(
+                    cfg.dataset.repo_id, cfg.dataset.root
+                )
+                logging.info(
+                    "Auto-versioned dataset repo_id: %s -> %s (root=%s)",
+                    original_repo_id,
+                    cfg.dataset.repo_id,
+                    cfg.dataset.root,
+                )
             sanity_check_dataset_name(cfg.dataset.repo_id, cfg.policy)
             dataset = LeRobotDataset.create(
                 cfg.dataset.repo_id,

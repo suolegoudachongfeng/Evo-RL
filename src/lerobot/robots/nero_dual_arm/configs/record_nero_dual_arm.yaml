@@ -49,8 +49,9 @@ teleop:
   right_channel_signs: [-1, -1, 1, 1, 1, 1]
 
 dataset:
-  repo_id: local/nero_demo
-  single_task: "collect nero dual-arm teleoperation data"
+  repo_id: nero_task3_step1/8mL_empty
+  single_task: "Seat a 8 mL vial into the 8 mL empty rack"
+  auto_version_repo_id: true
   root: null
   fps: 30
   episode_time_s: 60
