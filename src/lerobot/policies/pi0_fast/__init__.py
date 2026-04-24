@@ -15,7 +15,17 @@
 # limitations under the License.
 
 from .configuration_pi0_fast import PI0FastConfig
-from .modeling_pi0_fast import PI0FastPolicy
-from .processor_pi0_fast import make_pi0_fast_pre_post_processors
 
 __all__ = ["PI0FastConfig", "PI0FastPolicy", "make_pi0_fast_pre_post_processors"]
+
+
+def __getattr__(name: str):
+    if name == "PI0FastPolicy":
+        from .modeling_pi0_fast import PI0FastPolicy
+
+        return PI0FastPolicy
+    if name == "make_pi0_fast_pre_post_processors":
+        from .processor_pi0_fast import make_pi0_fast_pre_post_processors
+
+        return make_pi0_fast_pre_post_processors
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

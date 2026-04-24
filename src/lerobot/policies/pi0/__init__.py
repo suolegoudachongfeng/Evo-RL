@@ -15,7 +15,17 @@
 # limitations under the License.
 
 from .configuration_pi0 import PI0Config
-from .modeling_pi0 import PI0Policy
-from .processor_pi0 import make_pi0_pre_post_processors
 
 __all__ = ["PI0Config", "PI0Policy", "make_pi0_pre_post_processors"]
+
+
+def __getattr__(name: str):
+    if name == "PI0Policy":
+        from .modeling_pi0 import PI0Policy
+
+        return PI0Policy
+    if name == "make_pi0_pre_post_processors":
+        from .processor_pi0 import make_pi0_pre_post_processors
+
+        return make_pi0_pre_post_processors
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
