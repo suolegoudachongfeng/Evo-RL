@@ -1,0 +1,88 @@
+# Example long-term recording config for AgileX/Songling NERO dual-arm setup.
+# Start the external NERO server before running `lerobot-record` with this file.
+
+robot:
+  type: nero_dual_arm
+  id: nero_dual_arm
+  robot_ip: 127.0.0.1
+  robot_port: 4242
+  use_gripper: true
+  gripper_max_open: 0.1
+  gripper_force: 2.0
+  gripper_reverse: false
+  close_threshold: 0.05
+  control_mode: oculus
+  debug: false
+  action_send_freq_hz: 50.0
+  cameras:
+    left_wrist_image:
+      type: intelrealsense
+      serial_number_or_name: "412622270929"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+    right_wrist_image:
+      type: intelrealsense
+      serial_number_or_name: "412622270701"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+    head_image:
+      type: intelrealsense
+      serial_number_or_name: "339322074423"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+
+teleop:
+  type: oculus_teleop
+  id: quest_dual_arm
+  # Set this to the Quest IP for wireless ADB. For USB ADB mode, set it to null.
+  ip: "192.168.110.62"
+  use_gripper: true
+  left_pose_scaler: [0.3, 0.3]
+  right_pose_scaler: [0.3, 0.3]
+  left_channel_signs: [-1, -1, 1, 1, 1, 1]
+  right_channel_signs: [-1, -1, 1, 1, 1, 1]
+
+dataset:
+  repo_id: local/nero_demo
+  single_task: "collect nero dual-arm teleoperation data"
+  root: null
+  fps: 30
+  episode_time_s: 60
+  reset_time_s: 30
+  num_episodes: 5
+  video: true
+  push_to_hub: false
+  private: false
+  tags: ["nero", "dual-arm", "oculus"]
+  num_image_writer_processes: 0
+  num_image_writer_threads_per_camera: 4
+  video_encoding_batch_size: 1
+  vcodec: libsvtav1
+  rename_map: {}
+
+display_data: true
+display_ip: null
+display_port: null
+display_compressed_images: false
+play_sounds: true
+resume: false
+
+# Human-in-the-loop and policy-related fields are disabled for pure teleoperation recording.
+policy: null
+policy_sync_to_teleop: false
+policy_sync_parallel: true
+intervention_state_machine_enabled: false
+enable_episode_outcome_labeling: false
+require_episode_success_label: false
+default_episode_success: null
+enable_collector_policy_id: false
+collector_policy_id_policy: null
+collector_policy_id_human: human
+communication_retry_timeout_s: 2.0
+communication_retry_interval_s: 0.1

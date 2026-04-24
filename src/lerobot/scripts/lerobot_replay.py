@@ -60,6 +60,7 @@ from lerobot.robots import (  # noqa: F401
     hope_jr,
     koch_follower,
     make_robot_from_config,
+    nero_dual_arm,
     omx_follower,
     openarm_follower,
     piper_follower,
