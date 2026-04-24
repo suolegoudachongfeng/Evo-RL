@@ -332,8 +332,8 @@ lerobot-teleoperate \
 
 You can tune the Quest-to-robot mapping with:
 
-- `--teleop.left_pose_scaler='[0.3,0.3]'`
-- `--teleop.right_pose_scaler='[0.3,0.3]'`
+- `--teleop.left_pose_scaler='[1.2,1.2]'`
+- `--teleop.right_pose_scaler='[1.2,1.2]'`
 - `--teleop.left_channel_signs='[-1,-1,1,1,1,1]'`
 - `--teleop.right_channel_signs='[-1,-1,1,1,1,1]'`
 
@@ -343,8 +343,8 @@ For long-term use, put these values in `record_nero_dual_arm.yaml` under:
 
 ```yaml
 teleop:
-  left_pose_scaler: [0.3, 0.3]
-  right_pose_scaler: [0.3, 0.3]
+  left_pose_scaler: [1.2, 1.2]
+  right_pose_scaler: [1.2, 1.2]
   left_channel_signs: [-1, -1, 1, 1, 1, 1]
   right_channel_signs: [-1, -1, 1, 1, 1, 1]
 ```

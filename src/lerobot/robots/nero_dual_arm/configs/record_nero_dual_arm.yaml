@@ -43,8 +43,8 @@ teleop:
   # Set this to the Quest IP for wireless ADB. For USB ADB mode, set it to null.
   ip: "192.168.110.62"
   use_gripper: true
-  left_pose_scaler: [0.3, 0.3]
-  right_pose_scaler: [0.3, 0.3]
+  left_pose_scaler: [1.2, 1.2]
+  right_pose_scaler: [1.2, 1.2]
   left_channel_signs: [-1, -1, 1, 1, 1, 1]
   right_channel_signs: [-1, -1, 1, 1, 1, 1]
 
