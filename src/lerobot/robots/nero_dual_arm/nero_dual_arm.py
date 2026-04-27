@@ -53,8 +53,13 @@ class NeroDualArm(Robot):
     @property
     def _motors_ft(self) -> dict[str, type]:
         features: dict[str, type] = {}
+        for i in range(self.config.num_joints_per_arm):
+            features[f"left_joint_{i + 1}.pos"] = float
+        for i in range(self.config.num_joints_per_arm):
+            features[f"right_joint_{i + 1}.pos"] = float
         for axis in ("x", "y", "z", "rx", "ry", "rz"):
             features[f"left_ee_pose.{axis}"] = float
+        for axis in ("x", "y", "z", "rx", "ry", "rz"):
             features[f"right_ee_pose.{axis}"] = float
         if self.config.use_gripper:
             features["left_gripper_cmd_bin"] = float
@@ -74,6 +79,7 @@ class NeroDualArm(Robot):
         features: dict[str, type] = {}
         for axis in ("x", "y", "z", "rx", "ry", "rz"):
             features[f"left_delta_ee_pose.{axis}"] = float
+        for axis in ("x", "y", "z", "rx", "ry", "rz"):
             features[f"right_delta_ee_pose.{axis}"] = float
         if self.config.use_gripper:
             features["left_gripper_cmd_bin"] = float
@@ -191,6 +197,8 @@ class NeroDualArm(Robot):
             raise RuntimeError("NERO robot client is not initialized.")
 
         try:
+            left_joint_pos = self._robot.left_robot_get_joint_positions()
+            right_joint_pos = self._robot.right_robot_get_joint_positions()
             left_ee_pose = self._robot.left_robot_get_ee_pose()
             right_ee_pose = self._robot.right_robot_get_ee_pose()
         except Exception:
@@ -200,9 +208,15 @@ class NeroDualArm(Robot):
             raise
 
         obs_dict: RobotObservation = {}
+        for i in range(self.config.num_joints_per_arm):
+            obs_dict[f"left_joint_{i + 1}.pos"] = float(left_joint_pos[i])
+        for i in range(self.config.num_joints_per_arm):
+            obs_dict[f"right_joint_{i + 1}.pos"] = float(right_joint_pos[i])
+
         # Keep the axis mapping aligned with the existing ACT/NERO project for compatibility.
         for i, axis in enumerate(("x", "y", "z", "rz", "ry", "rx")):
             obs_dict[f"left_ee_pose.{axis}"] = float(left_ee_pose[i])
+        for i, axis in enumerate(("x", "y", "z", "rz", "ry", "rx")):
             obs_dict[f"right_ee_pose.{axis}"] = float(right_ee_pose[i])
 
         if self.config.use_gripper:
