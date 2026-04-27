@@ -21,9 +21,9 @@ from pprint import pformat
 from typing import Any
 
 import numpy as np
+import torch
 import pyarrow as pa
 import pyarrow.parquet as pq
-import torch
 from accelerate import Accelerator
 from accelerate.utils import DistributedDataParallelKwargs
 from torch.utils.data import DataLoader, Sampler
