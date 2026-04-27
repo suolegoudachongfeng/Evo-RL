@@ -218,6 +218,7 @@ lerobot-value-train="lerobot.scripts.lerobot_value_train:main"
 lerobot-value-infer="lerobot.scripts.lerobot_value_infer:main"
 lerobot-dataset-report="lerobot.scripts.lerobot_dataset_report:main"
 lerobot-convert-nero-legacy-dataset="lerobot.scripts.lerobot_convert_nero_legacy_dataset:main"
+lerobot-patch-episode-success="lerobot.scripts.lerobot_patch_episode_success:main"
 lerobot-export-boundary-frames="lerobot.scripts.lerobot_export_boundary_frames:main"
 
 # ---------------- Tool Configurations ----------------
