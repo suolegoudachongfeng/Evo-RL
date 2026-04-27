@@ -30,6 +30,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+import torch  # noqa: F401 - import torch before pyarrow to avoid torch._dynamo import-order issues.
 import pyarrow.dataset as pa_ds
 
 from lerobot.datasets.utils import load_episodes, load_info, load_tasks
