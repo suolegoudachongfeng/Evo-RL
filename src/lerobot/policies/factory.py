@@ -249,6 +249,14 @@ def make_pre_post_processors(
             policy configuration type.
     """
     if pretrained_path:
+        # Saved pi0/pi05 processor JSON files reference policy-specific processor
+        # steps. Import the modules explicitly so their registry decorators run
+        # before PolicyProcessorPipeline.from_pretrained resolves the steps.
+        if isinstance(policy_cfg, PI0Config):
+            import lerobot.policies.pi0.processor_pi0  # noqa: F401
+        elif isinstance(policy_cfg, PI05Config):
+            import lerobot.policies.pi05.processor_pi05  # noqa: F401
+
         # TODO(Steven): Temporary patch, implement correctly the processors for Gr00t
         if isinstance(policy_cfg, GrootConfig):
             # GROOT handles normalization in groot_pack_inputs_v3 step
