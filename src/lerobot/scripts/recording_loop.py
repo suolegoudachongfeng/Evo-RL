@@ -52,6 +52,8 @@ from lerobot.utils.utils import get_safe_torch_device
 from lerobot.utils.visualization_utils import log_rerun_data
 
 T = TypeVar("T")
+GRIPPER_COMMAND_KEYS = ("left_gripper_cmd_bin", "right_gripper_cmd_bin")
+GRIPPER_INTENT_THRESHOLD = 0.05
 
 
 """ --------------- record_loop() data flow --------------------------
@@ -163,6 +165,9 @@ def record_loop(
     last_reset_requested = False
     last_intervention_requested = False
     last_start_next_episode_requested = False
+    intervention_gripper_hold: dict[str, float] | None = None
+    intervention_gripper_baseline: dict[str, float] | None = None
+    intervention_gripper_control_active: dict[str, bool] = {}
     teleop_fallback_warned = False
 
     teleop_arm_for_mode_switch: Any | None = None
@@ -212,6 +217,68 @@ def record_loop(
             cond_policy_runtime_state = _capture_policy_runtime_state(policy)
             uncond_policy_runtime_state = _capture_policy_runtime_state(policy)
 
+    def clear_intervention_gripper_guard() -> None:
+        nonlocal intervention_gripper_hold, intervention_gripper_baseline
+        intervention_gripper_hold = None
+        intervention_gripper_baseline = None
+        intervention_gripper_control_active.clear()
+
+    def initialize_intervention_gripper_guard(
+        current_obs: RobotObservation,
+        teleop_action: RobotAction | None,
+    ) -> None:
+        nonlocal intervention_gripper_hold, intervention_gripper_baseline
+        if intervention_gripper_hold is not None:
+            return
+
+        intervention_gripper_hold = {}
+        intervention_gripper_baseline = {}
+        for key in GRIPPER_COMMAND_KEYS:
+            if key not in action_feature_names:
+                continue
+            current_value = current_obs.get(key, 1.0) if hasattr(current_obs, "get") else 1.0
+            teleop_value = (
+                teleop_action.get(key, current_value)
+                if teleop_action is not None and hasattr(teleop_action, "get")
+                else current_value
+            )
+            intervention_gripper_hold[key] = float(current_value)
+            intervention_gripper_baseline[key] = float(teleop_value)
+            intervention_gripper_control_active[key] = False
+
+        if intervention_gripper_hold:
+            logging.info(
+                "Intervention gripper guard initialized; preserving current gripper commands until "
+                "trigger input changes."
+            )
+
+    def apply_intervention_gripper_guard(
+        teleop_action: RobotAction,
+        current_obs: RobotObservation,
+    ) -> RobotAction:
+        if not hasattr(teleop_action, "get"):
+            return teleop_action
+
+        initialize_intervention_gripper_guard(current_obs, teleop_action)
+        if intervention_gripper_hold is None or intervention_gripper_baseline is None:
+            return teleop_action
+
+        guarded_action = dict(teleop_action)
+        for key in GRIPPER_COMMAND_KEYS:
+            if key not in guarded_action or key not in intervention_gripper_hold:
+                continue
+
+            teleop_value = float(guarded_action[key])
+            baseline = float(intervention_gripper_baseline[key])
+            gripper_input_changed = abs(teleop_value - baseline) > GRIPPER_INTENT_THRESHOLD
+            if intervention_gripper_control_active.get(key, False) or gripper_input_changed:
+                intervention_gripper_control_active[key] = True
+                intervention_gripper_hold[key] = teleop_value
+            else:
+                guarded_action[key] = intervention_gripper_hold[key]
+
+        return guarded_action
+
     def toggle_intervention(source: str) -> None:
         nonlocal intervention_state
         if not intervention_enabled:
@@ -239,6 +306,7 @@ def record_loop(
             lambda robot_action_to_send=robot_action_to_send: robot.send_action(robot_action_to_send),
         )
         reset_policy_state()
+        clear_intervention_gripper_guard()
         logging.info("Quest A requested robot_go_home; skipped recording this control frame.")
 
     def run_with_connection_retry(action_name: str, fn: Callable[[], T]) -> T:
@@ -404,6 +472,8 @@ def record_loop(
         if intervention_enabled and intervention_state == INTERVENTION_STATE_ACTIVE:
             is_intervention = 1.0
             if act_processed_teleop is not None:
+                act_processed_teleop = apply_intervention_gripper_guard(act_processed_teleop, obs)
+                last_teleop_action = act_processed_teleop
                 action_values = act_processed_teleop
             elif last_teleop_action is not None:
                 action_values = last_teleop_action
@@ -427,6 +497,17 @@ def record_loop(
                     )
                     teleop_fallback_warned = True
         else:
+            if (
+                intervention_enabled
+                and intervention_state == INTERVENTION_STATE_RELEASE
+                and act_processed_teleop is not None
+                and intervention_gripper_hold is not None
+            ):
+                guarded_release_action = dict(act_processed_teleop)
+                for key, value in intervention_gripper_hold.items():
+                    if key in guarded_release_action:
+                        guarded_release_action[key] = value
+                act_processed_teleop = guarded_release_action
             action_values = act_processed_policy if act_processed_policy is not None else act_processed_teleop
 
         # Applies a pipeline to the action, default is IdentityProcessor
@@ -479,6 +560,7 @@ def record_loop(
 
         if intervention_state == INTERVENTION_STATE_RELEASE:
             intervention_state = INTERVENTION_STATE_POLICY
+            clear_intervention_gripper_guard()
 
         dt_s = time.perf_counter() - start_loop_t
         precise_sleep(max(1 / fps - dt_s, 0.0))
