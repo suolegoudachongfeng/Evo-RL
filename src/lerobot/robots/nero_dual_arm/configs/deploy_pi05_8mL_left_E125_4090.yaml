@@ -1,21 +1,8 @@
-# NERO pi05 policy deployment config.
-#
-# Intended runtime:
-# - Run the external NERO server from Le-nero on the robot/server machine.
-# - Run this Evo-RL client config on the 5080 machine.
-#
-# Command:
-#   cd /home/dc/Workspace/Evo-RL
-#   conda activate wbcd
-#   export PYTHONPATH=/home/dc/Workspace/Evo-RL/src
-#   export HF_HUB_OFFLINE=1
-#   python -m lerobot.scripts.lerobot_record \
-#     --config_path=src/lerobot/robots/nero_dual_arm/configs/deploy_pi05_nero_dual_arm.yaml
+# NERO pi05 policy deployment config for the 4090 client.
 
 robot:
   type: nero_dual_arm
   id: nero_dual_arm
-  # Server-side PC running Le-nero's nero_interface_server.py.
   robot_ip: 192.168.110.203
   robot_port: 4242
   use_gripper: true
@@ -49,32 +36,33 @@ robot:
       fps: 30
       use_depth: false
 
-# Policy-only deployment by default. If you want policy + Oculus human intervention,
-# add a teleop block and set intervention_state_machine_enabled=true.
 teleop: null
 
 policy:
   type: pi05
-  pretrained_path: /home/dc/Workspace/Evo-RL/checkpoints/pi05_nero_030000/pretrained_model
+  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_8mL_left_E125_030000/pretrained_model
   device: cuda
   dtype: bfloat16
   push_to_hub: false
+  # Inference-only knobs. You can change these without retraining.
+  # n_action_steps controls how many predicted actions are executed before replanning.
+  # num_inference_steps controls flow-matching denoising quality/speed.
+  n_action_steps: 10
+  num_inference_steps: 15
 
 dataset:
-  # lerobot-record is also the current real-robot policy execution entrypoint,
-  # so a lightweight rollout dataset is created while the policy runs.
-  repo_id: nero_task3_step1/eval_2mL_empty_pi05_deploy
-  single_task: "pick up small vials and place them in the empty rack"
+  repo_id: nero_task3_step1/eval_8mL_left_E125_pi05_deploy
+  single_task: "pick up big vials and place them in the empty rack"
   auto_version_repo_id: true
   root: null
   fps: 30
-  episode_time_s: 60
-  reset_time_s: 30
+  episode_time_s: 600
+  reset_time_s: 300
   num_episodes: 3
   video: true
   push_to_hub: false
   private: false
-  tags: ["nero", "dual-arm", "pi05", "evorl", "deployment"]
+  tags: ["nero", "dual-arm", "pi05", "evorl", "deployment", "8mL-left-E125"]
   num_image_writer_processes: 0
   num_image_writer_threads_per_camera: 4
   video_encoding_batch_size: 1
@@ -97,7 +85,7 @@ episode_failure_key: f
 require_episode_success_label: false
 default_episode_success: null
 enable_collector_policy_id: true
-collector_policy_id_policy: pi05_nero_030000
+collector_policy_id_policy: pi05_8mL_left_E125_030000
 collector_policy_id_human: human
 communication_retry_timeout_s: 2.0
 communication_retry_interval_s: 0.1
