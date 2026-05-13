@@ -1,0 +1,102 @@
+# NERO DAgger/HIL recording config for the original 8mL-left E125 30k checkpoint on the 4090 client.
+
+robot:
+  type: nero_dual_arm
+  id: nero_dual_arm
+  robot_ip: 192.168.110.203
+  robot_port: 4242
+  use_gripper: true
+  gripper_max_open: 0.1
+  gripper_force: 2.0
+  gripper_reverse: false
+  close_threshold: 0.05
+  control_mode: oculus
+  debug: false
+  action_send_freq_hz: 50.0
+  cameras:
+    left_wrist_image:
+      type: intelrealsense
+      serial_number_or_name: "412622270929"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+    right_wrist_image:
+      type: intelrealsense
+      serial_number_or_name: "412622270701"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+    head_image:
+      type: intelrealsense
+      serial_number_or_name: "339322074423"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+
+teleop:
+  type: oculus_teleop
+  id: quest_dual_arm
+  ip: "192.168.110.62"
+  use_gripper: true
+  left_pose_scaler: [1.2, 1.2]
+  right_pose_scaler: [1.2, 1.2]
+  left_channel_signs: [-1, -1, 1, 1, 1, 1]
+  right_channel_signs: [-1, -1, 1, 1, 1, 1]
+
+policy:
+  type: pi05
+  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_8mL_left_E125_030000/pretrained_model
+  device: cuda
+  dtype: bfloat16
+  push_to_hub: false
+  n_action_steps: 30
+  num_inference_steps: 10
+
+dataset:
+  repo_id: nero_task3_step1/dagger_8mL_left_E125_pi05_030000
+  single_task: "pick up big vials and place them in the empty rack"
+  auto_version_repo_id: true
+  root: null
+  fps: 30
+  episode_time_s: 600
+  reset_time_s: 300
+  num_episodes: 5
+  video: true
+  push_to_hub: false
+  private: false
+  tags: ["nero", "dual-arm", "pi05", "evorl", "dagger", "8mL-left-E125", "base-030000"]
+  num_image_writer_processes: 0
+  num_image_writer_threads_per_camera: 4
+  video_encoding_batch_size: 1
+  vcodec: libsvtav1
+  rename_map: {}
+
+display_data: false
+display_ip: null
+display_port: null
+display_compressed_images: false
+play_sounds: true
+resume: false
+
+policy_sync_to_teleop: false
+policy_sync_parallel: true
+intervention_state_machine_enabled: true
+intervention_toggle_key: i
+enable_episode_outcome_labeling: true
+episode_success_key: s
+episode_failure_key: f
+require_episode_success_label: false
+default_episode_success: null
+enable_collector_policy_id: true
+collector_policy_id_policy: pi05_8mL_left_E125_030000
+collector_policy_id_human: human
+communication_retry_timeout_s: 2.0
+communication_retry_interval_s: 0.1
+
+acp_inference:
+  enable: true
+  use_cfg: false
+  cfg_beta: 1.0
