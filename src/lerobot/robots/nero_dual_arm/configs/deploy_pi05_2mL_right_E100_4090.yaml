@@ -47,8 +47,8 @@ policy:
   # Inference-only knobs. You can change these without retraining.
   # n_action_steps controls how many predicted actions are executed before replanning.
   # num_inference_steps controls flow-matching denoising quality/speed.
-  n_action_steps: 10
-  num_inference_steps: 15
+  n_action_steps: 30
+  num_inference_steps: 10
 
 dataset:
   repo_id: nero_task3_step1/eval_2mL_right_E100_pi05_deploy
