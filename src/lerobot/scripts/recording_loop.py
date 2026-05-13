@@ -162,6 +162,7 @@ def record_loop(
     last_teleop_action: RobotAction | None = None
     last_reset_requested = False
     last_intervention_requested = False
+    last_start_next_episode_requested = False
     teleop_fallback_warned = False
 
     teleop_arm_for_mode_switch: Any | None = None
@@ -293,6 +294,12 @@ def record_loop(
             events["toggle_intervention"] = False
             toggle_intervention("keyboard")
 
+        if events.get("start_next_episode_requested", False):
+            events["start_next_episode_requested"] = False
+            if dataset is None:
+                logging.info("Next episode requested from keyboard during reset; leaving reset stage.")
+                break
+
         # Get robot observation
         obs = robot.get_observation()
 
@@ -350,10 +357,24 @@ def record_loop(
             if act_processed_teleop is not None and hasattr(act_processed_teleop, "get")
             else False
         )
+        start_next_episode_requested = (
+            bool(act_processed_teleop.get("start_next_episode_requested", False))
+            if act_processed_teleop is not None and hasattr(act_processed_teleop, "get")
+            else False
+        )
 
         if intervention_requested and not last_intervention_requested:
             toggle_intervention("quest_b")
         last_intervention_requested = intervention_requested
+
+        if (
+            dataset is None
+            and start_next_episode_requested
+            and not last_start_next_episode_requested
+        ):
+            logging.info("Next episode requested from Quest X during reset; leaving reset stage.")
+            break
+        last_start_next_episode_requested = start_next_episode_requested
 
         if reset_requested and not last_reset_requested:
             request_robot_home(obs)

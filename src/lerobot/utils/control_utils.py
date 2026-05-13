@@ -161,6 +161,9 @@ class TTYKeyboardListener:
             print("Escape key pressed. Stopping data recording...")
             self.events["stop_recording"] = True
             self.events["exit_early"] = True
+        elif normalized in {"\r", "\n"}:
+            print("Enter key pressed. Requesting next episode start...")
+            self.events["start_next_episode_requested"] = True
         elif normalized == self.intervention_toggle_key:
             now = time.monotonic()
             if now - self._last_intervention_time < INTERVENTION_TOGGLE_COOLDOWN_S:
@@ -256,6 +259,7 @@ def init_keyboard_listener(
     events["stop_recording"] = False
     events["toggle_intervention"] = False
     events["episode_outcome"] = None
+    events["start_next_episode_requested"] = False
 
     listener = None
     if not is_headless():
@@ -277,6 +281,9 @@ def init_keyboard_listener(
                     print("Escape key pressed. Stopping data recording...")
                     events["stop_recording"] = True
                     events["exit_early"] = True
+                elif key == keyboard.Key.enter:
+                    print("Enter key pressed. Requesting next episode start...")
+                    events["start_next_episode_requested"] = True
                 elif hasattr(key, "char") and key.char and key.char.lower() == intervention_toggle_key.lower():
                     now = time.monotonic()
                     if now - last_intervention_time[0] < INTERVENTION_TOGGLE_COOLDOWN_S:
