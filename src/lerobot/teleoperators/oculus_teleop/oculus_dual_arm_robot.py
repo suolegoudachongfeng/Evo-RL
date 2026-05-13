@@ -52,12 +52,16 @@ class OculusDualArmRobot:
         self._left_prev_transform: np.ndarray | None = None
         self._right_prev_transform: np.ndarray | None = None
         self._reset_requested = False
+        self._intervention_requested = False
 
     def close(self) -> None:
         self._oculus_reader.stop()
 
     def is_reset_requested(self) -> bool:
         return self._reset_requested
+
+    def is_intervention_requested(self) -> bool:
+        return self._intervention_requested
 
     def _compute_delta_pose(
         self,
@@ -108,6 +112,7 @@ class OculusDualArmRobot:
         lg_pressed = bool(buttons.get("LG", False))
         rg_pressed = bool(buttons.get("RG", False))
         self._reset_requested = bool(buttons.get("A", False))
+        self._intervention_requested = bool(buttons.get("B", False))
 
         left_delta = np.zeros(6, dtype=float)
         right_delta = np.zeros(6, dtype=float)
@@ -151,4 +156,5 @@ class OculusDualArmRobot:
             obs["right_gripper_cmd_bin"] = None
 
         obs["reset_requested"] = self._reset_requested
+        obs["intervention_requested"] = self._intervention_requested
         return obs

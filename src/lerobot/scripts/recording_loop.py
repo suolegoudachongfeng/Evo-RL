@@ -160,6 +160,8 @@ def record_loop(
     intervention_enabled = intervention_state_machine_enabled and policy is not None and has_teleop
     intervention_state = INTERVENTION_STATE_POLICY
     last_teleop_action: RobotAction | None = None
+    last_reset_requested = False
+    last_intervention_requested = False
     teleop_fallback_warned = False
 
     teleop_arm_for_mode_switch: Any | None = None
@@ -197,6 +199,46 @@ def record_loop(
     if intervention_enabled:
         # Start in S0: policy drives both arms, teleop arm should accept feedback commands.
         set_teleop_manual_control(False)
+
+    def reset_policy_state() -> None:
+        nonlocal cond_policy_runtime_state, uncond_policy_runtime_state
+        if policy is None or preprocessor is None or postprocessor is None:
+            return
+        policy.reset()
+        preprocessor.reset()
+        postprocessor.reset()
+        if acp_inference.enable and acp_inference.use_cfg:
+            cond_policy_runtime_state = _capture_policy_runtime_state(policy)
+            uncond_policy_runtime_state = _capture_policy_runtime_state(policy)
+
+    def toggle_intervention(source: str) -> None:
+        nonlocal intervention_state
+        if not intervention_enabled:
+            logging.info("Intervention toggle from %s ignored because policy+teleop are not both active.", source)
+            return
+
+        if intervention_state == INTERVENTION_STATE_POLICY:
+            intervention_state = INTERVENTION_STATE_ACTIVE
+            set_teleop_manual_control(True)
+            logging.info("Intervention enabled (S1) from %s: teleop actions now override policy execution.", source)
+            return
+
+        intervention_state = INTERVENTION_STATE_RELEASE
+        set_teleop_manual_control(False)
+        reset_policy_state()
+        logging.info("Policy cache reset on release: next policy action is recomputed.")
+        logging.info("Intervention release requested (S2) from %s: returning control to policy.", source)
+
+    def request_robot_home(current_obs: RobotObservation) -> None:
+        reset_action = dict(zero_policy_action)
+        reset_action["reset_requested"] = True
+        robot_action_to_send = robot_action_processor((reset_action, current_obs))
+        run_with_connection_retry(
+            "robot.send_action(go_home)",
+            lambda robot_action_to_send=robot_action_to_send: robot.send_action(robot_action_to_send),
+        )
+        reset_policy_state()
+        logging.info("Quest A requested robot_go_home; skipped recording this control frame.")
 
     def run_with_connection_retry(action_name: str, fn: Callable[[], T]) -> T:
         timeout_s = max(communication_retry_timeout_s, 0.0)
@@ -249,26 +291,7 @@ def record_loop(
 
         if events.get("toggle_intervention", False):
             events["toggle_intervention"] = False
-            if intervention_enabled:
-                if intervention_state == INTERVENTION_STATE_POLICY:
-                    intervention_state = INTERVENTION_STATE_ACTIVE
-                    set_teleop_manual_control(True)
-                    logging.info("Intervention enabled (S1): teleop actions now override policy execution.")
-                else:
-                    intervention_state = INTERVENTION_STATE_RELEASE
-                    set_teleop_manual_control(False)
-                    if policy is not None and preprocessor is not None and postprocessor is not None:
-                        policy.reset()
-                        preprocessor.reset()
-                        postprocessor.reset()
-                        if acp_inference.enable and acp_inference.use_cfg:
-                            cond_policy_runtime_state = _capture_policy_runtime_state(policy)
-                            uncond_policy_runtime_state = _capture_policy_runtime_state(policy)
-                    if policy is not None and preprocessor is not None and postprocessor is not None:
-                        logging.info("Policy cache reset on release: next policy action is recomputed.")
-                    logging.info("Intervention release requested (S2): returning control to policy.")
-            else:
-                logging.info("Intervention toggle ignored because policy+teleop are not both active.")
+            toggle_intervention("keyboard")
 
         # Get robot observation
         obs = robot.get_observation()
@@ -316,6 +339,29 @@ def record_loop(
             base_action = robot._from_keyboard_to_base_action(keyboard_action)
             act = {**arm_action, **base_action} if len(base_action) > 0 else arm_action
             act_processed_teleop = teleop_action_processor((act, obs))
+
+        reset_requested = (
+            bool(act_processed_teleop.get("reset_requested", False))
+            if act_processed_teleop is not None and hasattr(act_processed_teleop, "get")
+            else False
+        )
+        intervention_requested = (
+            bool(act_processed_teleop.get("intervention_requested", False))
+            if act_processed_teleop is not None and hasattr(act_processed_teleop, "get")
+            else False
+        )
+
+        if intervention_requested and not last_intervention_requested:
+            toggle_intervention("quest_b")
+        last_intervention_requested = intervention_requested
+
+        if reset_requested and not last_reset_requested:
+            request_robot_home(obs)
+            last_reset_requested = reset_requested
+            precise_sleep(max(1 / fps - (time.perf_counter() - start_loop_t), 0.0))
+            timestamp = time.perf_counter() - start_episode_t
+            continue
+        last_reset_requested = reset_requested
 
         if act_processed_policy is None and act_processed_teleop is None:
             logging.info(

@@ -84,7 +84,7 @@ resume: false
 policy_sync_to_teleop: false
 policy_sync_parallel: true
 intervention_state_machine_enabled: true
-intervention_toggle_key: i
+intervention_toggle_key: b
 enable_episode_outcome_labeling: true
 episode_success_key: s
 episode_failure_key: f

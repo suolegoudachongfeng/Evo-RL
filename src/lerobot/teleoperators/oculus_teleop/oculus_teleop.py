@@ -46,6 +46,7 @@ class OculusTeleop(Teleoperator):
             features["left_gripper_cmd_bin"] = float
             features["right_gripper_cmd_bin"] = float
         features["reset_requested"] = bool
+        features["intervention_requested"] = bool
         return features
 
     @property
