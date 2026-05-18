@@ -19,12 +19,15 @@ class ValueInferenceDatasetConfig:
     episodes: list[int] | None = None
     revision: str | None = None
     download_videos: bool = True
+    tolerance_s: float = 1e-4
     success_field: str = "episode_success"
     default_success: str = "failure"
 
     def validate(self) -> None:
         if not self.repo_id:
             raise ValueError("'dataset.repo_id' must be non-empty.")
+        if self.tolerance_s <= 0:
+            raise ValueError("'dataset.tolerance_s' must be > 0.")
         if not self.success_field:
             raise ValueError("'dataset.success_field' must be non-empty.")
 

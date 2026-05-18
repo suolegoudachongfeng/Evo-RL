@@ -138,6 +138,7 @@ def _load_dataset_distributed(cfg: ValueInferencePipelineConfig, accelerator: Ac
         "episodes": cfg.dataset.episodes,
         "revision": cfg.dataset.revision,
         "download_videos": cfg.dataset.download_videos,
+        "tolerance_s": cfg.dataset.tolerance_s,
     }
 
     if accelerator.is_main_process:

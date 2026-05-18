@@ -56,7 +56,7 @@ policy:
   num_inference_steps: 10
 
 dataset:
-  repo_id: nero_task3_step1/dagger_8mL_left_E125_pi05_030000
+  repo_id: nero_task3_step1/eval_dagger_8mL_left_E125_pi05_030000
   single_task: "pick up big vials and place them in the empty rack"
   auto_version_repo_id: true
   root: null
