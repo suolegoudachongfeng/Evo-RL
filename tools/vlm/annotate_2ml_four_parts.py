@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import argparse
 import base64
+import getpass
 import json
 import os
 import re
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -103,6 +105,20 @@ def _iter_videos(clips_dir: Path) -> list[Path]:
     return sorted(p for p in clips_dir.glob("episode_*_right_wrist_image.mp4") if p.is_file())
 
 
+def _resolve_api_key(api_key_env: str, api_key_file: Path | None, no_prompt: bool) -> str:
+    api_key = os.environ.get(api_key_env)
+    if api_key:
+        return api_key.strip()
+    if api_key_file is not None:
+        return api_key_file.expanduser().read_text().strip()
+    if not no_prompt and sys.stdin.isatty():
+        return getpass.getpass("Neolink API key (input hidden): ").strip()
+    raise RuntimeError(
+        f"Missing API key env var: {api_key_env}; alternatively pass --api-key-file "
+        "or run from an interactive terminal to enter it securely."
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--clips-dir", type=Path, required=True)
@@ -112,6 +128,7 @@ def main() -> None:
     parser.add_argument("--api-base", default=DEFAULT_API_BASE)
     parser.add_argument("--api-key-env", default="NEOLINK_API_KEY")
     parser.add_argument("--api-key-file", type=Path)
+    parser.add_argument("--no-api-key-prompt", action="store_true")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--start-episode", type=int, default=0)
     parser.add_argument("--sleep-s", type=float, default=0.0)
@@ -120,11 +137,7 @@ def main() -> None:
     parser.add_argument("--keep-raw", action="store_true")
     args = parser.parse_args()
 
-    api_key = os.environ.get(args.api_key_env)
-    if not api_key and args.api_key_file is not None:
-        api_key = args.api_key_file.expanduser().read_text().strip()
-    if not api_key:
-        raise RuntimeError(f"Missing API key env var: {args.api_key_env}; alternatively pass --api-key-file")
+    api_key = _resolve_api_key(args.api_key_env, args.api_key_file, args.no_api_key_prompt)
 
     clips_dir = args.clips_dir.expanduser().resolve()
     output_dir = args.output_dir.expanduser().resolve()
