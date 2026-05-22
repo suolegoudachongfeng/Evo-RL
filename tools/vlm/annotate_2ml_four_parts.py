@@ -111,6 +111,7 @@ def main() -> None:
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--api-base", default=DEFAULT_API_BASE)
     parser.add_argument("--api-key-env", default="NEOLINK_API_KEY")
+    parser.add_argument("--api-key-file", type=Path)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--start-episode", type=int, default=0)
     parser.add_argument("--sleep-s", type=float, default=0.0)
@@ -120,8 +121,10 @@ def main() -> None:
     args = parser.parse_args()
 
     api_key = os.environ.get(args.api_key_env)
+    if not api_key and args.api_key_file is not None:
+        api_key = args.api_key_file.expanduser().read_text().strip()
     if not api_key:
-        raise RuntimeError(f"Missing API key env var: {args.api_key_env}")
+        raise RuntimeError(f"Missing API key env var: {args.api_key_env}; alternatively pass --api-key-file")
 
     clips_dir = args.clips_dir.expanduser().resolve()
     output_dir = args.output_dir.expanduser().resolve()
