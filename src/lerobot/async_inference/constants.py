@@ -35,4 +35,5 @@ SUPPORTED_ROBOTS = [
     "bi_piper_follower",
     "bi_piperx_follower",
     "omx_follower",
+    "franka_dual_arm",
 ]

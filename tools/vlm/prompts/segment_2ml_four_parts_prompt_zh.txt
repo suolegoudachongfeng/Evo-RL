@@ -1,0 +1,64 @@
+你是一个机械臂数据集标注助手。请只根据给定的右臂手腕相机视频，判断一个成功的小试管任务 episode 的四个阶段边界。
+
+任务背景：
+- 这是 2 mL 小试管任务，只使用右臂操作。
+- 目标是将两个小试管依次放入空试管架最右列的两个孔位。
+- 第一个试管应插入右下角孔；第二个试管应插入右上角孔。
+- 视频来自右臂手腕相机，可能有遮挡或近距离视角变化。
+- 视频时间从 0 秒开始，帧率通常是 30 FPS。
+
+请将 episode 切成四段：
+1. grasp_first_vial：机械臂接近第一个试管，并成功夹住/抓起第一个试管。结束点应是第一个试管已经被稳定夹住并开始离开桌面或明显被右夹爪控制的时刻。
+2. insert_first_vial：机械臂携带第一个试管移动到试管架，并将第一个试管插入右下角孔。结束点应是第一个试管已经直立进入孔位，并且夹爪释放或明显完成放置的时刻。
+3. grasp_second_vial：机械臂接近第二个试管，并成功夹住/抓起第二个试管。结束点应是第二个试管已经被稳定夹住并开始离开桌面或明显被右夹爪控制的时刻。
+4. insert_second_vial：机械臂携带第二个试管移动到试管架，并将第二个试管插入右上角孔。结束点应是第二个试管已经直立进入孔位，并且夹爪释放或明显完成放置的时刻。
+
+标注规则：
+- 输出必须是严格 JSON，不要 Markdown，不要解释性段落。
+- 所有时间单位都是秒，保留 2 位小数即可。
+- 如果某个边界不确定，可以填 null，并在 warnings 中说明原因。
+- 每段的 start_time/end_time 应覆盖主要有效动作，不要包含长时间静止等待。
+- 如果视频开头已经在接近第一个试管，grasp_first_vial.start_time 可以是 0.0。
+- 如果两个阶段之间存在短暂停顿，可以把停顿归入后一段，或在 confidence 中降低置信度。
+- 对每一段给出 confidence，范围 0 到 1。
+- evidence 用一句中文说明你看到的视觉证据，例如“夹爪闭合后试管随夹爪一起移动”。
+
+请按下面 schema 输出：
+{
+  "usable": true,
+  "time_unit": "seconds",
+  "camera": "right_wrist_image",
+  "segments": {
+    "grasp_first_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    },
+    "insert_first_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    },
+    "grasp_second_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    },
+    "insert_second_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    }
+  },
+  "key_events": {
+    "first_grasp_stable_time": 0.0,
+    "first_insert_release_time": 0.0,
+    "second_grasp_stable_time": 0.0,
+    "second_insert_release_time": 0.0
+  },
+  "warnings": []
+}

@@ -1,18 +1,27 @@
-# NERO pi05 deployment config for the combined E100/E125 checkpoint running the 8mL task.
+# Example recording config for a dual Franka + Robotiq setup.
+# Start the external dual_franka_robotiq_rpc_server before running `lerobot-record`.
 
 robot:
-  type: nero_dual_arm
-  id: nero_dual_arm
-  robot_ip: 192.168.110.203
+  type: franka_dual_arm
+  id: franka_dual_arm
+  robot_ip: 172.16.0.1
   robot_port: 4242
+  rpc_timeout_sec: 30.0
   use_gripper: true
-  gripper_max_open: 0.1
-  gripper_force: 2.0
+  gripper_max_open: 0.085
+  gripper_force: 10.0
+  gripper_speed: 0.1
   gripper_reverse: false
-  close_threshold: 0.05
+  close_threshold: 0.7
+  open_grippers_on_connect: false
+  reset_opens_grippers: true
+  reset_go_home: true
+  go_home_duration_sec: 5.0
+  go_home_rate_hz: 50.0
   control_mode: oculus
   debug: false
-  action_send_freq_hz: 50.0
+  max_cartesian_delta: 0.06
+  max_rotation_delta: 0.08
   cameras:
     left_wrist_image:
       type: intelrealsense
@@ -36,58 +45,51 @@ robot:
       fps: 30
       use_depth: false
 
-teleop: null
-
-policy:
-  type: pi05
-  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_E100_8mL_left_E125_combined_030000/pretrained_model
-  device: cuda
-  dtype: bfloat16
-  push_to_hub: false
-  n_action_steps: 30
-  num_inference_steps: 10
+teleop:
+  type: oculus_teleop
+  id: quest_dual_franka
+  ip: null
+  use_gripper: true
+  left_pose_scaler: [0.8, 0.8]
+  right_pose_scaler: [0.8, 0.8]
+  left_channel_signs: [1, 1, 1, -1, -1, 1]
+  right_channel_signs: [1, 1, 1, -1, -1, 1]
 
 dataset:
-  repo_id: nero_task3_step1/eval_combined_E100_E125_8mL
-  single_task: "pick up big vials and place them in the empty rack"
+  repo_id: dual_franka/example_task
+  single_task: "Dual Franka teleoperation task"
   auto_version_repo_id: true
   root: null
   fps: 30
-  episode_time_s: 600
-  reset_time_s: 300
-  num_episodes: 3
+  episode_time_s: 60
+  reset_time_s: 30
+  num_episodes: 5
   video: true
   push_to_hub: false
   private: false
-  tags: ["nero", "dual-arm", "pi05", "evorl", "deployment", "combined-E100-E125", "8mL"]
+  tags: ["franka", "dual-arm", "oculus"]
   num_image_writer_processes: 0
   num_image_writer_threads_per_camera: 4
   video_encoding_batch_size: 1
   vcodec: libsvtav1
   rename_map: {}
 
-display_data: false
+display_data: true
 display_ip: null
 display_port: null
 display_compressed_images: false
 play_sounds: true
 resume: false
 
+policy: null
 policy_sync_to_teleop: false
 policy_sync_parallel: true
 intervention_state_machine_enabled: false
-enable_episode_outcome_labeling: true
-episode_success_key: s
-episode_failure_key: f
+enable_episode_outcome_labeling: false
 require_episode_success_label: false
 default_episode_success: null
-enable_collector_policy_id: true
-collector_policy_id_policy: pi05_combined_E100_E125_030000_8mL
+enable_collector_policy_id: false
+collector_policy_id_policy: null
 collector_policy_id_human: human
 communication_retry_timeout_s: 2.0
 communication_retry_interval_s: 0.1
-
-acp_inference:
-  enable: true
-  use_cfg: false
-  cfg_beta: 1.0

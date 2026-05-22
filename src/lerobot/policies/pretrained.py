@@ -307,6 +307,12 @@ class PreTrainedPolicy(nn.Module, HubMixin, abc.ABC):
         if self.config.pretrained_path:
             self.name_or_path = str(self.config.pretrained_path)
 
+        # PEFT expects Hugging Face-style configs with a dict-like `.get()`.
+        # LeRobot policy configs are dataclasses, so provide the minimal
+        # compatibility shim needed by PEFT without changing config semantics.
+        if not hasattr(self.config, "get"):
+            self.config.get = lambda key, default=None: getattr(self.config, key, default)
+
         # Wrap with PEFT
         peft_model = get_peft_model(self, final_config)
 

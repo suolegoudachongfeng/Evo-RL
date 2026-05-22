@@ -1,0 +1,105 @@
+{
+  "type": "object",
+  "required": ["usable", "time_unit", "camera", "segments", "key_events", "warnings"],
+  "properties": {
+    "usable": {
+      "type": "boolean",
+      "description": "Whether the video is usable for four-part segmentation."
+    },
+    "time_unit": {
+      "const": "seconds"
+    },
+    "camera": {
+      "const": "right_wrist_image"
+    },
+    "segments": {
+      "type": "object",
+      "required": [
+        "grasp_first_vial",
+        "insert_first_vial",
+        "grasp_second_vial",
+        "insert_second_vial"
+      ],
+      "properties": {
+        "grasp_first_vial": {
+          "$ref": "#/$defs/segment"
+        },
+        "insert_first_vial": {
+          "$ref": "#/$defs/segment"
+        },
+        "grasp_second_vial": {
+          "$ref": "#/$defs/segment"
+        },
+        "insert_second_vial": {
+          "$ref": "#/$defs/segment"
+        }
+      },
+      "additionalProperties": false
+    },
+    "key_events": {
+      "type": "object",
+      "required": [
+        "first_grasp_stable_time",
+        "first_insert_release_time",
+        "second_grasp_stable_time",
+        "second_insert_release_time"
+      ],
+      "properties": {
+        "first_grasp_stable_time": {
+          "$ref": "#/$defs/time_or_null"
+        },
+        "first_insert_release_time": {
+          "$ref": "#/$defs/time_or_null"
+        },
+        "second_grasp_stable_time": {
+          "$ref": "#/$defs/time_or_null"
+        },
+        "second_insert_release_time": {
+          "$ref": "#/$defs/time_or_null"
+        }
+      },
+      "additionalProperties": false
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "time_or_null": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "segment": {
+      "type": "object",
+      "required": ["start_time", "end_time", "confidence", "evidence"],
+      "properties": {
+        "start_time": {
+          "$ref": "#/$defs/time_or_null"
+        },
+        "end_time": {
+          "$ref": "#/$defs/time_or_null"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -48,6 +48,10 @@ def make_robot_from_config(config: RobotConfig) -> Robot:
         from .nero_dual_arm.nero_dual_arm import NeroDualArm
 
         return NeroDualArm(config)
+    elif config.type == "franka_dual_arm":
+        from .franka_dual_arm.franka_dual_arm import FrankaDualArm
+
+        return FrankaDualArm(config)
     elif config.type == "hope_jr_hand":
         from .hope_jr import HopeJrHand
 

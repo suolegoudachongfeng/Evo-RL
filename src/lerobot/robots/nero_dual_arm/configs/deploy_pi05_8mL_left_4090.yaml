@@ -1,9 +1,13 @@
-# NERO pi05 deployment config for the combined E100/E125 checkpoint running the 2mL task.
+# Generic NERO pi05 deployment config for the 8 mL left-column task on 4090.
+# To test a different 8 mL checkpoint, usually edit only:
+#   policy.pretrained_path
+#   dataset.repo_id
+#   collector_policy_id_policy
 
 robot:
   type: nero_dual_arm
   id: nero_dual_arm
-  robot_ip: 192.168.110.203
+  robot_ip: 10.10.10.1
   robot_port: 4242
   use_gripper: true
   gripper_max_open: 0.1
@@ -40,7 +44,7 @@ teleop: null
 
 policy:
   type: pi05
-  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_E100_8mL_left_E125_combined_030000/pretrained_model
+  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/CHANGE_ME_8mL_LEFT_CHECKPOINT/pretrained_model
   device: cuda
   dtype: bfloat16
   push_to_hub: false
@@ -48,8 +52,8 @@ policy:
   num_inference_steps: 10
 
 dataset:
-  repo_id: nero_task3_step1/eval_combined_E100_E125_2mL
-  single_task: "pick up small vials and place them in the empty rack"
+  repo_id: nero_task3_step1/eval_8mL_left_generic
+  single_task: "8mL_two_vials_left_column. Object: two large 8 mL vials. Goal: pick up the two large vials one by one and place them upright into the leftmost column of the empty rack. Targets: the bottom-left corner hole and the top-left corner hole. Constraint: use the left column only; do not place either vial into the right column, center holes, or any other hole."
   auto_version_repo_id: true
   root: null
   fps: 30
@@ -59,7 +63,7 @@ dataset:
   video: true
   push_to_hub: false
   private: false
-  tags: ["nero", "dual-arm", "pi05", "evorl", "deployment", "combined-E100-E125", "2mL"]
+  tags: ["nero", "dual-arm", "pi05", "deployment", "8mL-left"]
   num_image_writer_processes: 0
   num_image_writer_threads_per_camera: 4
   video_encoding_batch_size: 1
@@ -82,7 +86,7 @@ episode_failure_key: f
 require_episode_success_label: false
 default_episode_success: null
 enable_collector_policy_id: true
-collector_policy_id_policy: pi05_combined_E100_E125_030000_2mL
+collector_policy_id_policy: pi05_8mL_left_generic
 collector_policy_id_human: human
 communication_retry_timeout_s: 2.0
 communication_retry_interval_s: 0.1

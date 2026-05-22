@@ -32,6 +32,7 @@ from lerobot.robots import (  # noqa: F401
     RobotConfig,
     bi_piper_follower,
     bi_so_follower,
+    franka_dual_arm,
     koch_follower,
     lekiwi,
     make_robot_from_config,

@@ -59,6 +59,13 @@ from lerobot.utils.constants import (
 )
 
 
+def _ensure_peft_config_compat(policy: PreTrainedPolicy) -> None:
+    """Provide the small Hugging Face config API surface PEFT expects."""
+
+    if not hasattr(policy.config, "get"):
+        policy.config.get = lambda key, default=None: getattr(policy.config, key, default)
+
+
 def get_policy_class(name: str) -> type[PreTrainedPolicy]:
     """
     Retrieves a policy class by its registered name.
@@ -534,6 +541,7 @@ def make_policy(
             )
 
         policy = policy_cls.from_pretrained(**kwargs)
+        _ensure_peft_config_compat(policy)
         policy = PeftModel.from_pretrained(policy, peft_pretrained_path, config=peft_config)
 
     else:

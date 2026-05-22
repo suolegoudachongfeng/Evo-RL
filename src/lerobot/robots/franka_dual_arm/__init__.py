@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2025 The HuggingFace Inc. team. All rights reserved.
+# Copyright 2026 The HuggingFace Inc. team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .config import RobotConfig
-from .robot import Robot
-from .utils import make_robot_from_config
+from .config_franka_dual_arm import FrankaDualArmConfig
 
-# Register project-specific robot config choices for draccus parsing.
 try:
-    from . import nero_dual_arm as _nero_dual_arm  # noqa: F401
-except Exception:
-    pass
-try:
-    from . import franka_dual_arm as _franka_dual_arm  # noqa: F401
-except Exception:
-    pass
+    from .franka_dual_arm import FrankaDualArm
+except Exception:  # pragma: no cover - optional runtime deps may be missing until Franka is used.
+    FrankaDualArm = None
+
+__all__ = ["FrankaDualArm", "FrankaDualArmConfig"]

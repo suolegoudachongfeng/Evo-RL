@@ -46,6 +46,7 @@ from lerobot.robots import (  # noqa: F401
     RobotConfig,
     bi_openarm_follower,
     bi_so_follower,
+    franka_dual_arm,
     koch_follower,
     make_robot_from_config,
     omx_follower,

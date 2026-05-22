@@ -1,0 +1,43 @@
+# Real dual Franka + Quest teleoperation config.
+# Start the external dual_franka_robotiq_rpc_server before running `lerobot-teleoperate`.
+
+robot:
+  type: franka_dual_arm
+  id: franka_dual_arm
+  robot_ip: 172.16.0.1
+  robot_port: 4242
+  rpc_timeout_sec: 30.0
+  use_gripper: true
+  gripper_max_open: 0.085
+  gripper_force: 10.0
+  gripper_speed: 0.1
+  gripper_reverse: false
+  close_threshold: 0.7
+  open_grippers_on_connect: false
+  reset_opens_grippers: false
+  reset_go_home: false
+  go_home_duration_sec: null
+  go_home_rate_hz: null
+  control_mode: oculus
+  debug: false
+  max_cartesian_delta: 0.005
+  max_rotation_delta: 0.02
+  cameras: {}
+
+teleop:
+  type: oculus_teleop
+  id: quest_dual_franka
+  # For USB ADB, keep this null. For wireless ADB, set this to the Quest IP.
+  ip: null
+  use_gripper: true
+  left_pose_scaler: [0.4, 0.4]
+  right_pose_scaler: [0.4, 0.4]
+  left_channel_signs: [1, 1, 1, -1, -1, 1]
+  right_channel_signs: [1, 1, 1, -1, -1, 1]
+
+fps: 20
+teleop_time_s: null
+display_data: true
+display_ip: null
+display_port: null
+display_compressed_images: false

@@ -110,6 +110,7 @@ damiao = ["python-can>=4.2.0,<5.0.0"]
 openarms = ["lerobot[damiao]"]
 gamepad = ["lerobot[pygame-dep]", "hidapi>=0.14.0,<0.15.0"]
 agilex_teleop = ["zerorpc>=0.6.3,<0.7.0", "pure-python-adb>=0.3.0.dev0,<0.4.0", "scipy>=1.10.1,<1.16.0"]
+franka_dual_arm = ["zerorpc>=0.6.3,<0.7.0", "scipy>=1.10.1,<1.16.0"]
 hopejr = ["lerobot[feetech]", "lerobot[pygame-dep]"]
 lekiwi = ["lerobot[feetech]", "pyzmq>=26.2.1,<28.0.0"]
 unitree_g1 = [
@@ -172,6 +173,7 @@ metaworld = ["metaworld==3.0.0"]
 all = [
     "lerobot[dynamixel]",
     "lerobot[gamepad]",
+    "lerobot[franka_dual_arm]",
     "lerobot[hopejr]",
     "lerobot[lekiwi]",
     "lerobot[reachy2]",

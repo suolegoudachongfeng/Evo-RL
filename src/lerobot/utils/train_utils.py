@@ -97,6 +97,11 @@ def save_checkpoint(
         preprocessor: The preprocessor/pipeline to save. Defaults to None.
     """
     pretrained_dir = checkpoint_dir / PRETRAINED_MODEL_DIR
+    if cfg.peft is not None and hasattr(policy, "create_or_update_model_card"):
+        # PEFT's model-card generation assumes Hugging Face model configs are
+        # dict-like. LeRobot policy configs are dataclasses, so skip model-card
+        # generation here; the adapter/config files below are the deployable state.
+        policy.create_or_update_model_card = lambda *args, **kwargs: None
     policy.save_pretrained(pretrained_dir)
     cfg.save_pretrained(pretrained_dir)
     if cfg.peft is not None:
