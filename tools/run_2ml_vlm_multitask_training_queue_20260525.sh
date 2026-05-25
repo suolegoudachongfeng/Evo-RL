@@ -13,6 +13,15 @@ DATASET_NAME="${DATASET_NAME:-2mL_right_4seg_strict_release_multitask_20260525}"
 DATASET_ROOT="${DATASET_ROOT:-$DATASET_BASE/$DATASET_NAME}"
 DATASET_REPO="${DATASET_REPO:-nero_task3_step1/$DATASET_NAME}"
 RUN_ID="${RUN_ID:-2mL_right_4seg_strict_release_multitask_evorl_${RUN_TAG}}"
+FREEZE_VISION_ENCODER="${FREEZE_VISION_ENCODER:-true}"
+FREEZE_LANGUAGE_MODEL="${FREEZE_LANGUAGE_MODEL:-true}"
+if [ -z "${VALUE_TRAIN_FIND_UNUSED_PARAMETERS:-}" ]; then
+  if [ "$FREEZE_VISION_ENCODER" = "false" ]; then
+    VALUE_TRAIN_FIND_UNUSED_PARAMETERS=true
+  else
+    VALUE_TRAIN_FIND_UNUSED_PARAMETERS=false
+  fi
+fi
 QUEUE_LOG="$CKPT_ROOT/queue_2mL_vlm_multitask_${RUN_TAG}.log"
 
 exec > >(tee -a "$QUEUE_LOG") 2>&1
@@ -26,6 +35,7 @@ export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 export TORCHDYNAMO_DISABLE=1
 export TOKENIZERS_PARALLELISM=false
+export LEROBOT_VALUE_TRAIN_FIND_UNUSED_PARAMETERS="$VALUE_TRAIN_FIND_UNUSED_PARAMETERS"
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 unset TRANSFORMERS_CACHE
 
@@ -38,6 +48,8 @@ echo "RUN_ID=$RUN_ID"
 echo "DATASET_REPO=$DATASET_REPO"
 echo "DATASET_ROOT=$DATASET_ROOT"
 echo "POLICY_STEPS=$POLICY_STEPS VALUE_STEPS=$VALUE_STEPS"
+echo "FREEZE_VISION_ENCODER=$FREEZE_VISION_ENCODER FREEZE_LANGUAGE_MODEL=$FREEZE_LANGUAGE_MODEL"
+echo "VALUE_TRAIN_FIND_UNUSED_PARAMETERS=$VALUE_TRAIN_FIND_UNUSED_PARAMETERS"
 nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader
 
 ensure_dataset() {
@@ -101,8 +113,8 @@ backup_dir "$policy_dir"
     --value.vision_repo_id="$VISION_SN" \
     --value.language_repo_id="$LANG_SN" \
     --value.dtype=bfloat16 \
-    --value.freeze_vision_encoder=true \
-    --value.freeze_language_model=true \
+    --value.freeze_vision_encoder="$FREEZE_VISION_ENCODER" \
+    --value.freeze_language_model="$FREEZE_LANGUAGE_MODEL" \
     --batch_size=8 \
     --num_workers=4 \
     --steps="$VALUE_STEPS" \

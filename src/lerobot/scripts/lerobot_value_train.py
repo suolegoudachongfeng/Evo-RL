@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import time
 from contextlib import nullcontext
 from pprint import pformat
@@ -29,6 +30,13 @@ from lerobot.utils.train_utils import (
     update_last_checkpoint,
 )
 from lerobot.utils.utils import format_big_number, has_method, init_logging
+
+
+def _env_flag(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def update_policy(
@@ -84,7 +92,8 @@ def value_train(
     if accelerator is None:
         from accelerate.utils import DistributedDataParallelKwargs
 
-        ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=False)
+        find_unused = _env_flag("LEROBOT_VALUE_TRAIN_FIND_UNUSED_PARAMETERS", False)
+        ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=find_unused)
         force_cpu = cfg.value.device == "cpu"
         accelerator = Accelerator(
             step_scheduler_with_optimizer=False,
