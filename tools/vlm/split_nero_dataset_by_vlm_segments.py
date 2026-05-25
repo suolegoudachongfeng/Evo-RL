@@ -23,29 +23,32 @@ SEGMENT_TASKS = {
     "grasp_first_vial": {
         "dir": "seg1_grasp_first_vial",
         "prompt": (
-            "Task: grasp the first 2 mL vial from the table with the right gripper. "
-            "Stop after the vial is securely lifted. Do not insert it into the rack."
+            "Use the right gripper to grasp and lift the first 2 mL vial from the table. "
+            "Stop once the vial is securely held above the table."
         ),
     },
     "insert_first_vial": {
         "dir": "seg2_insert_first_vial_bottom_right",
         "prompt": (
-            "Task: place the held 2 mL vial upright into the bottom-right hole of the rack "
-            "with the right gripper. Stop after releasing the vial in the hole."
+            "Starting with the first 2 mL vial already held by the right gripper, "
+            "place it upright into the bottom-right hole of the rack. "
+            "Stop once the vial is released and stable in the hole."
         ),
     },
     "grasp_second_vial": {
         "dir": "seg3_grasp_remaining_vial",
         "prompt": (
-            "Task: grasp the remaining 2 mL vial on the table with the right gripper. "
-            "The other vial is already in the rack. Stop after the remaining vial is securely lifted."
+            "Starting with the first vial already placed in the bottom-right hole, "
+            "use the right gripper to grasp and lift the remaining 2 mL vial from the table. "
+            "Stop once the remaining vial is securely held above the table."
         ),
     },
     "insert_second_vial": {
         "dir": "seg4_insert_remaining_vial_top_right",
         "prompt": (
-            "Task: place the held remaining 2 mL vial upright into the top-right hole of the rack "
-            "with the right gripper. Stop after releasing the vial in the hole."
+            "Starting with the remaining 2 mL vial already held by the right gripper, "
+            "place it upright into the top-right hole of the rack. "
+            "Stop once the vial is released and stable in the hole."
         ),
     },
 }

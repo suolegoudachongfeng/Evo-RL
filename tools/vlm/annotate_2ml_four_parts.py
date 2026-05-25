@@ -52,7 +52,17 @@ def _parse_json_text(text: str) -> dict[str, Any]:
     end = cleaned.rfind("}")
     if start < 0 or end < start:
         raise ValueError(f"Model response does not contain a JSON object: {text[:200]!r}")
-    return json.loads(cleaned[start : end + 1])
+    payload = cleaned[start : end + 1]
+    try:
+        return json.loads(payload)
+    except json.JSONDecodeError:
+        # Some VLM responses contain prose evidence with invalid JSON escapes
+        # such as "\u右". Keep valid unicode escapes intact and escape only
+        # malformed ones before retrying JSON parsing.
+        repaired = re.sub(r"\\u(?![0-9a-fA-F]{4})", r"\\\\u", payload)
+        if repaired == payload:
+            raise
+        return json.loads(repaired)
 
 
 def _request_annotation(
