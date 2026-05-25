@@ -111,6 +111,7 @@ def record_loop(
     display_compressed_images: bool = False,
     policy_sync_executor: PolicySyncDualArmExecutor | None = None,
     intervention_state_machine_enabled: bool = True,
+    start_in_intervention: bool = False,
     collector_policy_id_policy: str = "policy",
     collector_policy_id_human: str = "human",
     acp_inference: ACPInferenceConfig | None = None,
@@ -160,7 +161,11 @@ def record_loop(
     zero_policy_action = dict.fromkeys(action_feature_names, 0.0)
     has_teleop = isinstance(teleop, (Teleoperator, list))
     intervention_enabled = intervention_state_machine_enabled and policy is not None and has_teleop
-    intervention_state = INTERVENTION_STATE_POLICY
+    intervention_state = (
+        INTERVENTION_STATE_ACTIVE
+        if intervention_enabled and start_in_intervention
+        else INTERVENTION_STATE_POLICY
+    )
     last_teleop_action: RobotAction | None = None
     last_reset_requested = False
     last_intervention_requested = False
@@ -203,8 +208,12 @@ def record_loop(
         uncond_policy_runtime_state = _capture_policy_runtime_state(policy)
 
     if intervention_enabled:
-        # Start in S0: policy drives both arms, teleop arm should accept feedback commands.
-        set_teleop_manual_control(False)
+        # Start in S0 by default, or S1 for segmented rollouts that need manual setup first.
+        set_teleop_manual_control(intervention_state == INTERVENTION_STATE_ACTIVE)
+        if intervention_state == INTERVENTION_STATE_ACTIVE:
+            logging.info(
+                "Initial intervention active (S1): teleop actions override policy until the next toggle."
+            )
 
     def reset_policy_state() -> None:
         nonlocal cond_policy_runtime_state, uncond_policy_runtime_state

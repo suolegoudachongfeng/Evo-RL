@@ -1,8 +1,11 @@
-# Generic NERO pi05 deployment config for the 2 mL right-column task on 4090.
-# To test a different 2 mL checkpoint, usually edit only:
+# Generic NERO pi05 deployment config for the full 2 mL right-column task on 4090.
+# To test another full-task 2 mL checkpoint, usually edit only:
 #   policy.pretrained_path
 #   dataset.repo_id
 #   collector_policy_id_policy
+# Full-task checkpoints currently available:
+#   pi05_2mL_right_full_success_zero_motion_evorl_030000
+#   pi05_2mL_right_full_all_zero_motion_evorl_030000
 
 robot:
   type: nero_dual_arm
@@ -44,7 +47,7 @@ teleop: null
 
 policy:
   type: pi05
-  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_E299_prompt_v2_lora_merged_010000/pretrained_model
+  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_full_success_zero_motion_evorl_030000/pretrained_model
   device: cuda
   dtype: bfloat16
   push_to_hub: false
@@ -52,7 +55,7 @@ policy:
   num_inference_steps: 10
 
 dataset:
-  repo_id: nero_task3_step1/eval_2mL_right_E299_lora_merged_010000
+  repo_id: nero_task3_step1/eval_2mL_right_full_success_zero_motion_evorl_030000
   single_task: "2mL_two_vials_right_column. Object: two small 2 mL vials. Goal: pick up the two small vials one by one and place them upright into the rightmost column of the empty rack. Targets: the bottom-right corner hole and the top-right corner hole. Constraint: use the right column only; do not place either vial into the left column, center holes, or any other hole."
   auto_version_repo_id: true
   root: null
@@ -63,7 +66,7 @@ dataset:
   video: true
   push_to_hub: false
   private: false
-  tags: ["nero", "dual-arm", "pi05", "deployment", "2mL-right"]
+  tags: ["nero", "dual-arm", "pi05", "deployment", "2mL-right", "full-task"]
   num_image_writer_processes: 0
   num_image_writer_threads_per_camera: 4
   video_encoding_batch_size: 1
@@ -80,13 +83,14 @@ resume: false
 policy_sync_to_teleop: false
 policy_sync_parallel: true
 intervention_state_machine_enabled: false
+start_in_intervention: false
 enable_episode_outcome_labeling: true
 episode_success_key: s
 episode_failure_key: f
 require_episode_success_label: false
 default_episode_success: null
 enable_collector_policy_id: true
-collector_policy_id_policy: pi05_2mL_right_E299_prompt_v2_lora_merged_010000
+collector_policy_id_policy: pi05_2mL_right_full_success_zero_motion_evorl_030000
 collector_policy_id_human: human
 communication_retry_timeout_s: 2.0
 communication_retry_interval_s: 0.1

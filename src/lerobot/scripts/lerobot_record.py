@@ -257,6 +257,8 @@ class RecordConfig:
     policy_sync_parallel: bool = True
     # Enable S0/S1/S2 intervention state machine when policy + teleop are both available.
     intervention_state_machine_enabled: bool = True
+    # Start policy+teleop episodes in manual intervention mode; the next toggle releases to policy.
+    start_in_intervention: bool = False
     # Keyboard key used to toggle entering/leaving intervention.
     intervention_toggle_key: str = "i"
     # Whether to capture episode-level success/failure labels from keyboard.
@@ -525,6 +527,7 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
                     display_compressed_images=display_compressed_images,
                     policy_sync_executor=policy_sync_executor,
                     intervention_state_machine_enabled=cfg.intervention_state_machine_enabled,
+                    start_in_intervention=cfg.start_in_intervention,
                     collector_policy_id_policy=collector_policy_id_policy,
                     collector_policy_id_human=collector_policy_id_human,
                     acp_inference=cfg.acp_inference,

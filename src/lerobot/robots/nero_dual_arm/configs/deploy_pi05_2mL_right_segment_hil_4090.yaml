@@ -1,0 +1,125 @@
+# Generic NERO pi05 human-in-loop deployment config for 2 mL segmented tasks on 4090.
+# Run with:
+#   python -m lerobot.scripts.lerobot_human_inloop_record --config_path=/home/deepcybo/Workspace/Evo-RL/src/lerobot/robots/nero_dual_arm/configs/deploy_pi05_2mL_right_segment_hil_4090.yaml
+#
+# This config starts in manual intervention mode. Manually set the robot/object to the segment start state,
+# then press Quest B or keyboard i to release control to the policy. Press B/i again to take over.
+#
+# Segment checkpoint options:
+#   seg1 evorl: pi05_2mL_right_seg1_grasp_first_vial_vlm_zero_success_evorl_030000
+#   seg1 pi05 : pi05_2mL_right_seg1_grasp_first_vial_vlm_zero_success_bc_030000
+#   seg2 evorl: pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000
+#   seg2 pi05 : pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_bc_030000
+#   seg3 evorl: pi05_2mL_right_seg3_grasp_remaining_vial_vlm_zero_success_evorl_030000
+#   seg3 pi05 : pi05_2mL_right_seg3_grasp_remaining_vial_vlm_zero_success_bc_030000
+#   seg4 evorl: pi05_2mL_right_seg4_insert_remaining_vial_top_right_vlm_zero_success_evorl_030000
+#   seg4 pi05 : pi05_2mL_right_seg4_insert_remaining_vial_top_right_vlm_zero_success_bc_030000
+#
+# When switching segment, edit:
+#   policy.pretrained_path
+#   dataset.repo_id
+#   dataset.single_task
+#   collector_policy_id_policy
+
+robot:
+  type: nero_dual_arm
+  id: nero_dual_arm
+  robot_ip: 10.10.10.1
+  robot_port: 4242
+  use_gripper: true
+  gripper_max_open: 0.1
+  gripper_force: 2.0
+  gripper_reverse: false
+  close_threshold: 0.05
+  control_mode: oculus
+  debug: false
+  action_send_freq_hz: 50.0
+  cameras:
+    left_wrist_image:
+      type: intelrealsense
+      serial_number_or_name: "412622270929"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+    right_wrist_image:
+      type: intelrealsense
+      serial_number_or_name: "412622270701"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+    head_image:
+      type: intelrealsense
+      serial_number_or_name: "339322074423"
+      width: 424
+      height: 240
+      fps: 30
+      use_depth: false
+
+teleop:
+  type: oculus_teleop
+  id: quest_dual_arm
+  # Set to null for USB ADB mode. Keep this IP only if Quest wireless ADB is still on this address.
+  ip: "192.168.110.62"
+  use_gripper: true
+  left_pose_scaler: [1.2, 1.2]
+  right_pose_scaler: [1.2, 1.2]
+  left_channel_signs: [-1, -1, 1, 1, 1, 1]
+  right_channel_signs: [-1, -1, 1, 1, 1, 1]
+
+policy:
+  type: pi05
+  pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000/pretrained_model
+  device: cuda
+  dtype: bfloat16
+  push_to_hub: false
+  n_action_steps: 30
+  num_inference_steps: 10
+
+dataset:
+  repo_id: nero_task3_step1/eval_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000
+  single_task: "2mL segmented task 2. Starting with the first small vial already grasped by the right gripper, insert this vial upright into the bottom-right hole of the rack. Keep the vial vertical and use only the right-column bottom-right target."
+  auto_version_repo_id: true
+  root: null
+  fps: 30
+  episode_time_s: 300
+  reset_time_s: 180
+  num_episodes: 3
+  video: true
+  push_to_hub: false
+  private: false
+  tags: ["nero", "dual-arm", "pi05", "deployment", "2mL-right", "segmented", "human-in-loop"]
+  num_image_writer_processes: 0
+  num_image_writer_threads_per_camera: 4
+  video_encoding_batch_size: 1
+  vcodec: libsvtav1
+  rename_map: {}
+
+display_data: false
+display_ip: null
+display_port: null
+display_compressed_images: false
+play_sounds: true
+resume: false
+
+policy_sync_to_teleop: true
+policy_sync_parallel: true
+intervention_state_machine_enabled: true
+start_in_intervention: true
+intervention_toggle_key: i
+enable_episode_outcome_labeling: true
+episode_success_key: s
+episode_failure_key: f
+require_episode_success_label: false
+default_episode_success: failure
+enable_collector_policy_id: true
+collector_policy_id_policy: pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000
+collector_policy_id_human: human
+communication_retry_timeout_s: 2.0
+communication_retry_interval_s: 0.1
+
+acp_inference:
+  enable: true
+  use_cfg: false
+  cfg_beta: 1.0
