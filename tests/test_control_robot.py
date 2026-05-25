@@ -16,6 +16,7 @@
 
 import json
 from collections import deque
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -27,6 +28,7 @@ from lerobot.datasets.lerobot_dataset import LeRobotDataset
 from lerobot.scripts.lerobot_calibrate import CalibrateConfig, calibrate
 from lerobot.scripts.lerobot_human_inloop_record import (
     _HumanInloopFailureResetController,
+    _disable_thread_unsafe_policy_sync,
     _load_failure_reset_pose,
     _save_failure_reset_pose,
     _slow_reset_all_arms_to_pose,
@@ -179,6 +181,30 @@ def test_human_inloop_record_works_without_policy_and_saves_annotations(tmp_path
     assert float(reloaded[0]["complementary_info.state"]) == 0.0
     assert "episode_success" in reloaded.meta.episodes.column_names
     assert reloaded.meta.episodes[0]["episode_success"] == "failure"
+
+
+def test_human_inloop_disables_parallel_policy_sync_for_zerorpc_robots():
+    cfg = SimpleNamespace(
+        policy=object(),
+        policy_sync_parallel=True,
+        robot=SimpleNamespace(type="nero_dual_arm"),
+    )
+
+    _disable_thread_unsafe_policy_sync(cfg)
+
+    assert cfg.policy_sync_parallel is False
+
+
+def test_human_inloop_keeps_parallel_policy_sync_for_thread_safe_robots():
+    cfg = SimpleNamespace(
+        policy=object(),
+        policy_sync_parallel=True,
+        robot=MockRobotConfig(),
+    )
+
+    _disable_thread_unsafe_policy_sync(cfg)
+
+    assert cfg.policy_sync_parallel is True
 
 
 def test_patch_hil_dataset_schema_restores_legacy_dataset_mergeability(tmp_path):

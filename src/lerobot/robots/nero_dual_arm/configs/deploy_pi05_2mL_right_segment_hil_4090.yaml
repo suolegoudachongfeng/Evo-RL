@@ -15,7 +15,13 @@
 #   seg4 evorl: pi05_2mL_right_seg4_insert_remaining_vial_top_right_vlm_zero_success_evorl_030000
 #   seg4 pi05 : pi05_2mL_right_seg4_insert_remaining_vial_top_right_vlm_zero_success_bc_030000
 #
-# When switching segment, edit:
+# Segment prompts:
+#   seg1: 2mL segmented task 1. Starting from the normal initial state, use the right gripper to grasp the first small vial intended for the bottom-right rack position. Stop with the vial securely grasped.
+#   seg2: 2mL segmented task 2. Starting with the first small vial already grasped by the right gripper, insert this vial upright into the bottom-right hole of the rack. Keep the vial vertical and use only the right-column bottom-right target.
+#   seg3: 2mL segmented task 3. Starting after the first vial has already been placed upright in the bottom-right hole, use the right gripper to grasp the remaining small vial. Stop with the remaining vial securely grasped.
+#   seg4: 2mL segmented task 4. Starting with the remaining small vial already grasped by the right gripper and the first vial already placed in the bottom-right hole, insert the remaining vial upright into the top-right hole of the rack.
+#
+# When switching segment, edit these four fields:
 #   policy.pretrained_path
 #   dataset.repo_id
 #   dataset.single_task
@@ -61,7 +67,7 @@ teleop:
   type: oculus_teleop
   id: quest_dual_arm
   # Set to null for USB ADB mode. Keep this IP only if Quest wireless ADB is still on this address.
-  ip: "192.168.110.62"
+  ip: null
   use_gripper: true
   left_pose_scaler: [1.2, 1.2]
   right_pose_scaler: [1.2, 1.2]
@@ -70,7 +76,14 @@ teleop:
 
 policy:
   type: pi05
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg1_grasp_first_vial_vlm_zero_success_evorl_030000/pretrained_model
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg1_grasp_first_vial_vlm_zero_success_bc_030000/pretrained_model
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_bc_030000/pretrained_model
   pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000/pretrained_model
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg3_grasp_remaining_vial_vlm_zero_success_bc_030000/pretrained_model
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg3_grasp_remaining_vial_vlm_zero_success_evorl_030000/pretrained_model
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg4_insert_remaining_vial_top_right_vlm_zero_success_bc_030000/pretrained_model
+  # pretrained_path: /home/deepcybo/Workspace/Evo-RL/checkpoints/pi05_2mL_right_seg4_insert_remaining_vial_top_right_vlm_zero_success_evorl_030000/pretrained_model
   device: cuda
   dtype: bfloat16
   push_to_hub: false
@@ -78,13 +91,16 @@ policy:
   num_inference_steps: 10
 
 dataset:
-  repo_id: nero_task3_step1/eval_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000
+  repo_id: nero_task3_step1/eval_2mL_right_segmentation
+  # single_task: "2mL segmented task 1. Starting from the normal initial state, use the right gripper to grasp the first small vial intended for the bottom-right rack position. Stop with the vial securely grasped."
   single_task: "2mL segmented task 2. Starting with the first small vial already grasped by the right gripper, insert this vial upright into the bottom-right hole of the rack. Keep the vial vertical and use only the right-column bottom-right target."
+  # single_task: "2mL segmented task 3. Starting after the first vial has already been placed upright in the bottom-right hole, use the right gripper to grasp the remaining small vial. Stop with the remaining vial securely grasped."
+  # single_task: "2mL segmented task 4. Starting after the remaining vial has been grasped, insert this vial upright into the top-right hole of the rack. Keep the vial vertical and use only the right-column top-right target."
   auto_version_repo_id: true
   root: null
   fps: 30
-  episode_time_s: 300
-  reset_time_s: 180
+  episode_time_s: 3000
+  reset_time_s: 1800
   num_episodes: 3
   video: true
   push_to_hub: false
@@ -104,7 +120,7 @@ play_sounds: true
 resume: false
 
 policy_sync_to_teleop: true
-policy_sync_parallel: true
+policy_sync_parallel: false
 intervention_state_machine_enabled: true
 start_in_intervention: true
 intervention_toggle_key: i
@@ -114,7 +130,7 @@ episode_failure_key: f
 require_episode_success_label: false
 default_episode_success: failure
 enable_collector_policy_id: true
-collector_policy_id_policy: pi05_2mL_right_seg2_insert_first_vial_bottom_right_vlm_zero_success_evorl_030000
+collector_policy_id_policy: pi05_2mL_segmentation
 collector_policy_id_human: human
 communication_retry_timeout_s: 2.0
 communication_retry_interval_s: 0.1

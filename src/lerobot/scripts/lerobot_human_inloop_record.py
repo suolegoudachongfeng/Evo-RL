@@ -38,6 +38,24 @@ from lerobot.utils.recording_annotations import (
     infer_collector_policy_version,
 )
 
+_THREAD_UNSAFE_POLICY_SYNC_ROBOTS = {"nero_dual_arm", "franka_dual_arm"}
+
+
+def _disable_thread_unsafe_policy_sync(cfg: RecordConfig) -> None:
+    if cfg.policy is None or not cfg.policy_sync_parallel:
+        return
+
+    robot_type = getattr(cfg.robot, "type", None)
+    if robot_type not in _THREAD_UNSAFE_POLICY_SYNC_ROBOTS:
+        return
+
+    logging.warning(
+        "Disabling policy_sync_parallel for %s human-in-loop recording because its ZeroRPC "
+        "client must not be called from the policy-sync worker thread.",
+        robot_type,
+    )
+    cfg.policy_sync_parallel = False
+
 
 def _default_failure_reset_pose_path(cfg: RecordConfig) -> Path:
     robot_id = cfg.robot.id if cfg.robot.id else "default"
@@ -138,6 +156,7 @@ def human_inloop_record(cfg: RecordConfig):
 
     cfg.policy_sync_to_teleop = cfg.policy is not None
     cfg.intervention_state_machine_enabled = cfg.policy is not None
+    _disable_thread_unsafe_policy_sync(cfg)
     cfg.enable_episode_outcome_labeling = True
     cfg.default_episode_success = "failure"
     cfg.enable_collector_policy_id = True
