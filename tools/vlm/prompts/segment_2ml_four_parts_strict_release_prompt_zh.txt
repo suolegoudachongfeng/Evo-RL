@@ -1,0 +1,98 @@
+你是一个机械臂数据集标注助手。请只根据给定的右臂手腕相机视频，判断一个成功的 2 mL 小试管任务 episode 的四个阶段边界。
+
+任务背景：
+- 这是 2 mL 小试管任务，只使用右臂操作。
+- 目标是将两个小试管依次放入空试管架最右列的两个孔位。
+- 第一个试管应插入右下角孔；第二个/剩余试管应插入右上角孔。
+- 视频来自右臂手腕相机，可能有遮挡、近距离视角变化或短暂停顿。
+- 视频时间从 0 秒开始，帧率通常是 30 FPS。
+
+核心原则：
+- 请标注“关键事件边界”，不要粗略标注一大段动作。
+- 不要把长时间静止等待包含进任何阶段。
+- 如果某个事件在视频中不可见或无法判断，使用 null，并在 warnings 中说明原因；不要编造时间。
+- 四段时间应按任务顺序单调递增，不能互相交叉。
+
+四个阶段定义：
+
+1. grasp_first_vial
+- start_time：右夹爪开始对第一个 2 mL 小试管进行有效接近的第一帧。
+- end_time：第一个试管已经被右夹爪稳定夹住，并且试管开始离开桌面，或已经明显随右夹爪一起受控移动的第一帧。
+- 不要把夹住之后向试管架搬运的过程包含进 grasp_first_vial。
+
+2. insert_first_vial
+- start_time：第一个试管已经被稳定夹住后，右夹爪携带它开始朝试管架右下孔移动的第一帧。
+- end_time 必须是同时满足以下全部条件的第一帧：
+  a. 第一个试管已经竖直进入右下孔；
+  b. 试管稳定停留，不再随着夹爪继续移动；
+  c. 右夹爪已经明显松开或已经释放对试管的接触；
+  d. 还没有把夹爪松开后的长距离撤离动作包含进去。
+- 如果试管已经进入孔位但夹爪仍然闭合、仍在夹持、仍在压着或仍在带着试管移动，绝对不要把该时刻标为结束。
+- 如果夹爪被遮挡但能看到试管已经稳定竖直停留，并且随后夹爪开始脱离/撤走，可以选择最早合理释放时刻，但 confidence 应降低并说明原因。
+
+3. grasp_second_vial
+- “第二个试管”指第一个试管已经放入右下孔后，桌面上剩下的那个 2 mL 小试管。
+- start_time：右夹爪从第一个孔位附近离开后，开始对剩余试管进行有效接近的第一帧。
+- end_time：剩余试管已经被右夹爪稳定夹住，并且试管开始离开桌面，或已经明显随右夹爪一起受控移动的第一帧。
+- 不要把夹住之后向试管架搬运的过程包含进 grasp_second_vial。
+
+4. insert_second_vial
+- start_time：第二个/剩余试管已经被稳定夹住后，右夹爪携带它开始朝试管架右上孔移动的第一帧。
+- end_time 必须是同时满足以下全部条件的第一帧：
+  a. 第二个/剩余试管已经竖直进入右上孔；
+  b. 试管稳定停留，不再随着夹爪继续移动；
+  c. 右夹爪已经明显松开或已经释放对试管的接触；
+  d. 还没有把夹爪松开后的长距离撤离动作包含进去。
+- 如果试管已经进入孔位但夹爪仍然闭合、仍在夹持、仍在压着或仍在带着试管移动，绝对不要把该时刻标为结束。
+- 如果夹爪被遮挡但能看到试管已经稳定竖直停留，并且随后夹爪开始脱离/撤走，可以选择最早合理释放时刻，但 confidence 应降低并说明原因。
+
+输出规则：
+- 输出必须是严格 JSON，不要 Markdown，不要解释性段落。
+- 所有时间单位都是秒，保留 2 位小数即可。
+- 每段都给 confidence，范围 0 到 1。
+- evidence 用一句中文说明你看到的视觉证据，例如“夹爪打开后试管竖直停在右下孔中”。
+- key_events 必须与 segments 中的关键结束时刻一致：
+  first_grasp_stable_time = grasp_first_vial.end_time
+  first_insert_release_time = insert_first_vial.end_time
+  second_grasp_stable_time = grasp_second_vial.end_time
+  second_insert_release_time = insert_second_vial.end_time
+
+请按下面 schema 输出：
+{
+  "usable": true,
+  "time_unit": "seconds",
+  "camera": "right_wrist_image",
+  "segments": {
+    "grasp_first_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    },
+    "insert_first_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    },
+    "grasp_second_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    },
+    "insert_second_vial": {
+      "start_time": 0.0,
+      "end_time": 0.0,
+      "confidence": 0.0,
+      "evidence": ""
+    }
+  },
+  "key_events": {
+    "first_grasp_stable_time": 0.0,
+    "first_insert_release_time": 0.0,
+    "second_grasp_stable_time": 0.0,
+    "second_insert_release_time": 0.0
+  },
+  "warnings": []
+}
