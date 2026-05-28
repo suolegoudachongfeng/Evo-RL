@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "required": ["usable", "time_unit", "camera", "segments", "key_events", "warnings"],
+  "properties": {
+    "usable": {"type": "boolean"},
+    "time_unit": {"const": "seconds"},
+    "camera": {"const": "head_image"},
+    "segments": {
+      "type": "object",
+      "required": ["open_drawer", "place_rack", "close_drawer"],
+      "properties": {
+        "open_drawer": {"$ref": "#/$defs/segment"},
+        "place_rack": {"$ref": "#/$defs/segment"},
+        "close_drawer": {"$ref": "#/$defs/segment"}
+      },
+      "additionalProperties": false
+    },
+    "key_events": {
+      "type": "object",
+      "required": ["drawer_open_stable_time", "rack_released_stable_time", "drawer_closed_stable_time"],
+      "properties": {
+        "drawer_open_stable_time": {"$ref": "#/$defs/time_or_null"},
+        "rack_released_stable_time": {"$ref": "#/$defs/time_or_null"},
+        "drawer_closed_stable_time": {"$ref": "#/$defs/time_or_null"}
+      },
+      "additionalProperties": false
+    },
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "time_or_null": {
+      "anyOf": [{"type": "number", "minimum": 0}, {"type": "null"}]
+    },
+    "segment": {
+      "type": "object",
+      "required": ["start_time", "end_time", "confidence", "evidence"],
+      "properties": {
+        "start_time": {"$ref": "#/$defs/time_or_null"},
+        "end_time": {"$ref": "#/$defs/time_or_null"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -161,8 +161,8 @@ def test_observation_flattens_nested_rpc_state(fake_client):
     assert obs["right_joint_1.pos"] == 1.0
     assert obs["left_ee_pose.x"] == 0.1
     assert obs["right_ee_pose.z"] == 0.6
-    assert obs["left_gripper_state_norm"] == 0.25
-    assert obs["right_gripper_state_norm"] == 0.5
+    assert obs["left_gripper_cmd_bin"] == 0.25
+    assert obs["right_gripper_cmd_bin"] == 0.5
 
 
 def test_step_observation_cache_is_consumed_once(fake_client):

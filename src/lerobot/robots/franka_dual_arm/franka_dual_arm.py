@@ -153,8 +153,6 @@ class FrankaDualArm(Robot):
         for axis in ("x", "y", "z", "rx", "ry", "rz"):
             features[f"right_ee_pose.{axis}"] = float
         if self.config.use_gripper:
-            features["left_gripper_state_norm"] = float
-            features["right_gripper_state_norm"] = float
             features["left_gripper_cmd_bin"] = float
             features["right_gripper_cmd_bin"] = float
         return features
@@ -445,8 +443,6 @@ class FrankaDualArm(Robot):
                 right_grip = 1.0 - right_grip
             self._left_gripper_state = _clamp(left_grip, 0.0, 1.0)
             self._right_gripper_state = _clamp(right_grip, 0.0, 1.0)
-            obs_dict["left_gripper_state_norm"] = self._left_gripper_state
-            obs_dict["right_gripper_state_norm"] = self._right_gripper_state
             obs_dict["left_gripper_cmd_bin"] = (
                 self._last_left_gripper_open if self._last_left_gripper_open is not None else self._left_gripper_state
             )
